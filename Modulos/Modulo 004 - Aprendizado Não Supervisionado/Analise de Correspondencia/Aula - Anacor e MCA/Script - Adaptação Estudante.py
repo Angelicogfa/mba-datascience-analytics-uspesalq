@@ -36,16 +36,22 @@ from itertools import combinations
 # Importando o banco de dados
 
 dados_mca = pd.read_csv("estudantes_adapta.csv")
+dados_mca.head()
 # Fonte: adaptado de https://www.kaggle.com/datasets/mdmahmudulhasansuzan/students-adaptability-level-in-online-education
 # Suzan et al.(2021) Students' Adaptability Level Prediction in Online Education using Machine Learning Approaches - DOI: 10.1109/ICCCNT51525.2021.9579741
 
 #%% Tabelas de frequências das variáveis
 
 print(dados_mca['Education'].value_counts())
+print('')
 print(dados_mca['Institution'].value_counts())
+print('')
 print(dados_mca['Financial'].value_counts())
+print('')
 print(dados_mca['Internet'].value_counts())
+print('')
 print(dados_mca['Adaptivity'].value_counts())
+print('')
 
 #%% Analisando as tabelas de contingência
 
@@ -57,8 +63,11 @@ tabela_mca_3 = pd.crosstab(dados_mca["Adaptivity"], dados_mca["Financial"])
 tabela_mca_4 = pd.crosstab(dados_mca["Adaptivity"], dados_mca["Internet"])
 
 print(tabela_mca_1)
+print('')
 print(tabela_mca_2)
+print('')
 print(tabela_mca_3)
+print('')
 print(tabela_mca_4)
 
 #%% Analisando a significância estatística das associações (teste qui²)
@@ -69,21 +78,21 @@ print("Adaptivity x Education")
 print(f"estatística qui²: {round(tab_1[0], 2)}")
 print(f"p-valor da estatística: {round(tab_1[1], 4)}")
 print(f"graus de liberdade: {tab_1[2]}")
-
+print('')
 tab_2 = chi2_contingency(tabela_mca_2)
 
 print("Adaptivity x Institution")
 print(f"estatística qui²: {round(tab_2[0], 2)}")
 print(f"p-valor da estatística: {round(tab_2[1], 4)}")
 print(f"graus de liberdade: {tab_2[2]}")
-
+print('')
 tab_3 = chi2_contingency(tabela_mca_3)
 
 print("Adaptivity x Financial")
 print(f"estatística qui²: {round(tab_3[0], 2)}")
 print(f"p-valor da estatística: {round(tab_3[1], 4)}")
 print(f"graus de liberdade: {tab_3[2]}")
-
+print('')
 tab_4 = chi2_contingency(tabela_mca_4)
 
 print("Adaptivity x Internet")

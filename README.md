@@ -10,3 +10,4 @@
        2. Cluster com KMeans
     2. Análise Fatorial PCA
     3. Análise de Correspondencia
+    4. Atividades
