@@ -11,3 +11,5 @@
     2. Análise Fatorial PCA
     3. Análise de Correspondencia
     4. Atividades
+2. Aprendizado supervisionado
+   1. Regressão Linear Simples e Multipla

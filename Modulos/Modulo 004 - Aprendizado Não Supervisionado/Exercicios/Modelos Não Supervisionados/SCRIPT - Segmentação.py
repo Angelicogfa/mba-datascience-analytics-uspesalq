@@ -69,6 +69,7 @@ df_quanti.describe()
 
 # As variáveis estão em unidades de medidas distintas
 df_quanti_pad = df_quanti.apply(zscore, ddof=1)
+df_quanti_pad
 
 #%% Identificação da quantidade de clusters (Método Elbow)
 
@@ -114,7 +115,7 @@ df_quanti_pad['Cluster'] = kmeans_clusters
 clientes['Cluster'] = clientes['Cluster'].astype('category')
 df_quanti_pad['Cluster'] = df_quanti_pad['Cluster'].astype('category')
 
-#%% ANOVA
+#%% ANOVA 1
 
 # Analisando se as duas variáveis são significativas para a clusterização 
 
@@ -124,6 +125,7 @@ pg.anova(dv='Age',
          data=df_quanti_pad,
          detailed=True).T
 
+#%% ANOVA 2
 # Family Size
 pg.anova(dv='FamilySize', 
          between='Cluster', 
@@ -132,7 +134,7 @@ pg.anova(dv='FamilySize',
 
 #%% Quais são as características dos clusters em termos de idade e família
 
-clientes[['Age', 'FamilySize', 'Cluster']].groupby(by=['Cluster']).mean()
+clientes[['Age', 'FamilySize', 'Cluster']].groupby(by=['Cluster']).median().sort_values(by='Age')
 
 #%% Vamos realizar uma ACM nas variáveis qualitativas (incluir os clusters!)
 
@@ -155,19 +157,20 @@ print(df_quali.Cluster.value_counts())
 tabela1 = chi2_contingency(pd.crosstab(df_quali["SpendingScore"],
                                        df_quali["Gender"]))
 print(f"p-valor da estatística: {round(tabela1[1], 4)}")
+print('')
 
 tabela2 = chi2_contingency(pd.crosstab(df_quali["SpendingScore"], 
                                        df_quali["EverMarried"]))
 print(f"p-valor da estatística: {round(tabela2[1], 4)}")
-
+print('')
 tabela3 = chi2_contingency(pd.crosstab(df_quali["SpendingScore"], 
                                        df_quali["Graduated"]))
 print(f"p-valor da estatística: {round(tabela3[1], 4)}")
-
+print('')
 tabela4 = chi2_contingency(pd.crosstab(df_quali["SpendingScore"], 
                                        df_quali["Cluster"]))
 print(f"p-valor da estatística: {round(tabela4[1], 4)}")
-
+print('')
 # Todas apresentam associação significativa com pelo menos uma variável
 
 #%% Elaborando a análise de correspondência múltipla
@@ -180,14 +183,14 @@ mca = prince.MCA(n_components=3).fit(df_quali)
 # Análise dos autovalores
 tabela_autovalores = mca.eigenvalues_summary
 print(tabela_autovalores)
-
+print('')
 # Inércia total da análise
 print(mca.total_inertia_)
-
+print('')
 # Plotar apenas dimensões com inércia parcial superior à inércia total média
 quant_dim = mca.J_ - mca.K_
 print(mca.total_inertia_/quant_dim)
-
+print('')
 #%% Obtendo as coordenadas-padrão das categorias das variáveis
 
 coord_padrao = mca.column_coordinates(df_quali)/np.sqrt(mca.eigenvalues_)

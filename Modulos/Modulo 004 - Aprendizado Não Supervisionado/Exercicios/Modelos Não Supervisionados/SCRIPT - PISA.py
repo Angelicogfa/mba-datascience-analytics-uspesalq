@@ -88,12 +88,14 @@ fa = FactorAnalyzer(n_factors=3, method='principal', rotation=None).fit(pisa_pca
 
 autovalores = fa.get_eigenvalues()[0]
 print(autovalores)
+print(len(autovalores))
+print([value / len(autovalores) for value in autovalores])
 
 #%% Redefinindo a PCA (critério da raiz latente)
 
 # Escolhendo n_factors com base em autovalores > 1
 
-fa = FactorAnalyzer(n_factors=1, method='principal', rotation=None).fit(pisa_pca)
+fa = FactorAnalyzer(n_factors=len([value for value in autovalores if value > 1]), method='principal', rotation=None).fit(pisa_pca)
 
 #%% Eigenvalues, variâncias e variâncias acumuladas
 
@@ -106,7 +108,7 @@ tabela_eigen = tabela_eigen.T
 
 print(tabela_eigen)
 
-#%% Determinando as cargas fatoriais
+#%% Determinando as cargas fatoriais (correlações entre as variáveis e os fatores)
 
 cargas_fatoriais = fa.loadings_
 
@@ -116,7 +118,7 @@ tabela_cargas.index = pisa_pca.columns
 
 print(tabela_cargas)
 
-#%% Determinando as comunalidades
+#%% Determinando as comunalidades (variância explicada pelas variáveis)
 
 comunalidades = fa.get_communalities()
 
