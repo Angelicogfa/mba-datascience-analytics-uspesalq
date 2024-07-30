@@ -7,7 +7,7 @@
 # coding: utf-8
 
 # In[0.1]: Instalação dos pacotes
-
+#%% Install
 !pip install pandas
 !pip install numpy
 !pip install -U seaborn
@@ -22,7 +22,7 @@
 !pip install statstests
 
 # In[0.2]: Importação dos pacotes
-
+#%% Import
 import pandas as pd # manipulação de dados em formato de dataframe
 import numpy as np # operações matemáticas
 import seaborn as sns # visualização gráfica
@@ -32,7 +32,7 @@ from scipy.stats import pearsonr # correlações de Pearson
 import statsmodels.api as sm # estimação de modelos
 from statsmodels.iolib.summary2 import summary_col # comparação entre modelos
 from sklearn.preprocessing import LabelEncoder # transformação de dados
-from playsound import playsound # reprodução de sons
+#from playsound import playsound # reprodução de sons
 import pingouin as pg # outro modo para obtenção de matrizes de correlações
 import emojis # inserção de emojis em gráficos
 from statstests.process import stepwise # procedimento Stepwise
@@ -41,7 +41,7 @@ from scipy.stats import boxcox # transformação de Box-Cox
 from scipy.stats import norm # para plotagem da curva normal
 from scipy import stats # utilizado na definição da função 'breusch_pagan_test'
 
-
+#%%
 # In[EXEMPLO 1]:
 #############################################################################
 #                          REGRESSÃO LINEAR SIMPLES                         #
@@ -57,6 +57,7 @@ df_tempodist.info()
 # Estatísticas univariadas
 df_tempodist.describe()
 
+#%%
 # In[1.1]: Gráfico de dispersão com o ajuste linear (fitted values de um modelo
 #de regressão) que se adequa às observações: função 'regplot' do pacote 'seaborn'
 
@@ -72,8 +73,9 @@ plt.yticks(fontsize=18)
 plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values'], fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.2]: Gráfico de dispersão interativo (figura 'EXEMPLO1.html' salva na
 #pasta do curso)
 
@@ -126,7 +128,7 @@ fig.write_html('EXEMPLO1.html')
 # Abrir o arquivo HTML no navegador
 import webbrowser
 webbrowser.open('EXEMPLO1.html')
-
+#%%
 # In[1.3]: Estimação do modelo de regressão linear simples
 
 # Estimação do modelo
@@ -135,6 +137,92 @@ modelo = sm.OLS.from_formula('tempo ~ distancia', df_tempodist).fit()
 # Observação dos parâmetros resultantes da estimação
 modelo.summary()
 
+#%%
+# Somatória dos quadrados do modelo (SQM)
+print(modelo.ess)
+
+# Somatória dos quadrados dos resíduos (SQR)
+print(modelo.ssr)
+
+# A estatística F é uma medida utilizada em análises de regressão para testar a significância global do modelo. Ela compara a variabilidade explicada pelo modelo com a variabilidade não explicada, ou seja, a diferença entre a variabilidade total dos dados e a variabilidade explicada pelo modelo.
+
+# A estatística F é calculada dividindo a variabilidade explicada pelo número de regressores (variáveis independentes) pelo erro médio quadrático (MSE), que é uma medida da variabilidade não explicada. Quanto maior o valor da estatística F, maior é a evidência de que o modelo é significativo.
+
+# A estatística F é aplicada para testar a hipótese nula de que todos os coeficientes de regressão são iguais a zero, o que significa que o modelo não é significativo. Se o valor da estatística F for maior do que um determinado valor crítico, geralmente obtido a partir de tabelas estatísticas, a hipótese nula é rejeitada e concluímos que o modelo é significativo.
+
+# A estatística F é comumente utilizada em análises de regressão para avaliar a qualidade do modelo e determinar se as variáveis independentes têm um efeito significativo na variável dependente. Ela também pode ser usada para comparar diferentes modelos de regressão e selecionar o modelo mais adequado.
+
+# Principais casos de uso da estatística F:
+
+# Avaliar a significância global do modelo de regressão.
+# Comparar diferentes modelos de regressão e selecionar o mais adequado.
+# Testar a hipótese de que todas as variáveis independentes têm coeficientes iguais a zero.
+# Determinar se as variáveis independentes têm um efeito significativo na variável dependente.
+# É importante ressaltar que a interpretação da estatística F depende do contexto do problema e das suposições subjacentes ao modelo de regressão. Portanto, é fundamental entender bem o significado e as limitações dessa estatística ao aplicá-la em análises estatísticas.
+
+#%% Analise das estatísticas do modelo
+# Número de observações
+n = modelo.nobs
+
+# Graus de liberdade do modelo
+df_modelo = modelo.df_model
+
+# Graus de liberdade dos resíduos
+df_residuos = modelo.df_resid
+
+# Estatística F
+F = (modelo.ess/df_modelo)/(modelo.ssr/df_residuos)
+F
+#%% Anova (Analysis of Variance) é uma técnica estatística utilizada para analisar a variabilidade dos dados e testar a significância dos fatores em um modelo. A Anova é frequentemente aplicada em análises de regressão para avaliar a importância das variáveis independentes na explicação da variabilidade da variável dependente.
+from statsmodels.stats.anova import anova_lm
+
+anova_lm(modelo)
+
+#%% Definiçao do p-value associado ao F calculado
+from scipy.stats import f
+
+1 - f.cdf(F, df_modelo, df_residuos)
+# portanto, há modelo.
+
+#%% Gerando gráfico F hipotetico
+
+df1 = 10 # graus de liberdade do numerador (modelo)
+df2 = 80 # graus de liberdade do denominador (resíduos)
+
+f_values = np.random.f(df1, df2, 100_000)
+
+plt.hist(f_values, bins=100, edgecolor='lightgray', color='navy', alpha=0.7)
+
+#%%  Voltando ao nosso modelo
+# Calculo do F Critico
+f.ppf(0.95, df_modelo, df_residuos)
+
+#%% Distribuição t de Studenty Hipotetica
+df = 40
+t_values = np.random.standard_t(df, 100_000)
+plt.hist(t_values, bins=100, edgecolor='lightgray', color='navy', alpha=0.7)
+
+
+#%% Calculo da estatistica t do beta da variavel 'distancia' para o nosso
+# exemplo 
+# t é a raiz quadrada de F (regressão simples)
+t = np.sqrt(F)
+t
+
+# calculo do p-value da estatistica t
+from scipy.stats import t as t_student
+t_student.sf(t, df_residuos)*2
+
+#%% Gráfico da distribuição t hipotética
+x = np.arange(-4, 4, 0.0001)
+
+plt.plot(x, t_student.pdf(x, 2), label='df=2', color='yellow')
+plt.plot(x, t_student.pdf(x, 8), label='df=8', color='green')
+plt.plot(x, t_student.pdf(x, 20), label='df=20', color='darkorchid')
+plt.legend()
+plt.show()
+
+#%%
 # In[1.4]: Salvando fitted values (variável yhat) e residuals (variável erro)
 #no dataset
 
@@ -142,6 +230,10 @@ df_tempodist['yhat'] = modelo.fittedvalues
 df_tempodist['erro'] = modelo.resid
 df_tempodist
 
+#%%
+
+
+#%%
 # In[1.5]: Gráfico didático para visualizar o conceito de R²
 
 plt.figure(figsize=(15,10))
@@ -167,6 +259,7 @@ for i in range(len(x)-1):
                fontsize=22, loc='upper left')
 plt.show()
 
+#%%
 # In[1.6]: Cálculo manual do R²
 
 R2 = ((df_tempodist['yhat']-
@@ -176,6 +269,7 @@ R2 = ((df_tempodist['yhat']-
 
 round(R2,4)
 
+#%%
 # In[1.7]: Coeficiente de ajuste (R²) é a correlação ao quadrado
 
 # Correlação de Pearson
@@ -187,6 +281,7 @@ df_tempodist[['tempo','distancia']].corr()
 # R² de maneira direta
 modelo.rsquared
 
+#%%
 # In[1.8]: Modelo auxiliar para mostrar R² igual a 100% (para fins didáticos)
 
 # Estimação do modelo com yhat como variável dependente resultará em um modelo
@@ -196,6 +291,7 @@ modelo_auxiliar = sm.OLS.from_formula('yhat ~ distancia', df_tempodist).fit()
 # Parâmetros resultantes da estimação deste modelo didático
 modelo_auxiliar.summary()
 
+#%%
 # In[1.9]:Gráfico mostrando o perfect fit
 
 plt.figure(figsize=(15,10))
@@ -212,8 +308,9 @@ plt.yticks(fontsize=18)
 plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(loc='upper left', fontsize=24)
-plt.show
+plt.show()
 
+#%%
 # In[1.10]:Gráfico mostrando o perfect fit com figura .JPG e som .MP3
 
 import urllib.request
@@ -271,8 +368,9 @@ plt.show()
 # Reproduz um som padrão (arquivo na pasta do curso)
 # Aqui você deve colocar a URL da pasta em que se encontra o arquivo 'sound.mp3',
 #com duas barras!
-playsound('C:\\MBA DSA USP Esalq\\Análise de Regressão Simples e Múltipla\\sound.mp3')
+#playsound('C:\\MBA DSA USP Esalq\\Análise de Regressão Simples e Múltipla\\sound.mp3')
 
+#%%
 # In[1.11]: Voltando ao nosso modelo original
 
 # Gráfico com intervalo de confiança de 90%
@@ -290,8 +388,9 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '90% IC'],
            fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.12]: Gráfico com intervalo de confiança de 95%
 
 plt.figure(figsize=(15,10))
@@ -307,8 +406,9 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '95% IC'],
            fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.13]: Gráfico com intervalo de confiança de 99%
 
 plt.figure(figsize=(15,10))
@@ -324,8 +424,9 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '99% IC'],
            fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.14]: Gráfico com intervalo de confiança de 99,99999%
 
 plt.figure(figsize=(15,10))
@@ -341,8 +442,9 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '99,99999% IC'],
            fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.15]: Calculando os intervalos de confiança
 
 # Nível de significância de 10% / Nível de confiança de 90%
@@ -370,6 +472,7 @@ modelo.params[0] + modelo.params[1]*(25)
 #da função 'predict'
 modelo.predict(pd.DataFrame({'distancia':[25]}))
 
+#%%
 # In[1.17]: Nova modelagem para o mesmo exemplo, com novo dataset que
 #contém replicações
 
@@ -380,17 +483,20 @@ df_replicado
 
 # In[1.18]: Estimação do modelo com valores replicados
 
+#%%
 modelo_replicado = sm.OLS.from_formula('tempo ~ distancia',
                                        df_replicado).fit()
 
 # Parâmetros do 'modelo_replicado'
 modelo_replicado.summary()
 
+#%%
 # In[1.19]: Calculando os novos intervalos de confiança
 
 # Nível de significância de 5% / Nível de confiança de 95%
 modelo_replicado.conf_int(alpha=0.05)
 
+#%%
 # In[1.20]: Plotando o novo gráfico com intervalo de confiança de 95%
 # Note o estreitamento da amplitude dos intervalos de confiança!
 
@@ -407,8 +513,9 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '95% IC'],
            fontsize=24, loc='upper left')
-plt.show
+plt.show()
 
+#%%
 # In[1.21]: PROCEDIMENTO ERRADO: ELIMINAR O INTERCEPTO QUANDO ESTE NÃO SE
 #MOSTRAR ESTATISTICAMENTE SIGNIFICANTE
 
@@ -417,6 +524,7 @@ modelo_errado = sm.OLS.from_formula('tempo ~ 0 + distancia', df_tempodist).fit()
 # Parâmetros do 'modelo_errado'
 modelo_errado.summary()
 
+#%%
 # In[1.22]: Comparando os parâmetros do modelo inicial (objeto 'modelo')
 #com o 'modelo_errado' pela função 'summary_col' do pacote
 #'statsmodels.iolib.summary2'
@@ -431,6 +539,7 @@ summary_col([modelo, modelo_errado],
                 'N':lambda x: "{0:d}".format(int(x.nobs))
         })
 
+#%%
 # In[1.23]: Gráfico didático para visualizar o viés decorrente de se eliminar
 #erroneamente o intercepto em modelos regressivos
 
@@ -450,7 +559,7 @@ plt.ylim(0, 60)
 plt.legend(['Valores Observados','Fitted Values OLS',
             'Sem Intercepto'], fontsize=9)
 plt.show()
-
+#%%
 # In[1.24]: DÚVIDA: Qual estimação devo escolher? (com figura proveninente de URL)
 
 import urllib.request
@@ -492,6 +601,7 @@ plt.figimage(imagem_redimensionada, posicao_x, posicao_y, zorder=1)
 
 plt.show()
 
+#%%
 # In[1.25]: DECISÃO: DEVO ESCOLHER O MODELO COM INTERCEPTO!
 
 # Definição das URLs das imagems
@@ -539,7 +649,7 @@ plt.figimage(imagem_redimensionada1, posicao_x1, posicao_y1, zorder=1)
 plt.figimage(imagem_redimensionada2, posicao_x2, posicao_y2, zorder=1)
 
 plt.show()
-
+#%%
 
 # In[EXEMPLO 2]:
 #############################################################################
@@ -2645,3 +2755,4 @@ sns.kdeplot(data=df_planosaude_dummies, x='fitted_step_bc', y='residuos_step_bc'
             levels=2, color='green', linewidths=3)
 
 ################################## FIM ######################################
+# %%
