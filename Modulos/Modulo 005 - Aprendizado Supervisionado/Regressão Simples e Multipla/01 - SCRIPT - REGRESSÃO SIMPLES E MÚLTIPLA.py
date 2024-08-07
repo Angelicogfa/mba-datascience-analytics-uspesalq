@@ -1348,9 +1348,63 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
+
+#%% Diferença entre padronização e normalização
+
+## Padronização (não modifica a distribuição dos dados) - NÃO ALTERAÇÃO A DISTRIBUIÇÃO
+## Padronização não é Normalização
+
+from scipy.stats import zscore
+df_bebes['z_comprimento'] = zscore(df_bebes['comprimento'])
+df_bebes['z_comprimento'].describe()
+
+#%% Histograma do dado real e padronizado
+
+plt.figure(figsize=(15,10))
+hist1 = sns.histplot(data=df_bebes['comprimento'], kde=True, bins=25, color='aqua', alpha=0.4, edgecolor='silver', line_kws={'linewidth': 3})
+hist1.get_lines()[0].set_color('navy')
+
+plt.xlabel('Variavel', fontsize=20)
+plt.ylabel('Frequência', fontsize=20)
+plt.xticks(fontsize=17)
+plt.yticks(fontsize=17)
+plt.show()
+
+plt.figure(figsize=(15,10))
+hist1 = sns.histplot(data=df_bebes['z_comprimento'], kde=True, bins=25, color='aqua', alpha=0.4, edgecolor='silver', line_kws={'linewidth': 3})
+hist1.get_lines()[0].set_color('navy')
+
+plt.xlabel('Variavel', fontsize=20)
+plt.ylabel('Frequência', fontsize=20)
+plt.xticks(fontsize=17)
+plt.yticks(fontsize=17)
+plt.show()
+
+#%% Aplicação do teste de shapiro-francia da variavel comprimento
+teste_sf = shapiro_francia(df_bebes['comprimento']) #criação do objeto 'teste_sf'
+teste_sf = teste_sf.items() #retorna o grupo de pares de valores-chave no dicionário
+method, statistics_W, statistics_z, p = teste_sf #definição dos elementos da lista (tupla)
+print('Statistics W=%.5f, p-value=%.6f' % (statistics_W[1], p[1]))
+alpha = 0.05 #nível de significância
+if p[1] > alpha:
+    print('Não se rejeita H0 - Distribuição aderente à normalidade')
+else:
+    print('Rejeita-se H0 - Distribuição não aderente à normalidade')
+
+#%% Aplicação do teste de shapiro-francia da variavel z_comprimento
+teste_sf = shapiro_francia(df_bebes['z_comprimento']) #criação do objeto 'teste_sf'
+teste_sf = teste_sf.items() #retorna o grupo de pares de valores-chave no dicionário
+method, statistics_W, statistics_z, p = teste_sf #definição dos elementos da lista (tupla)
+print('Statistics W=%.5f, p-value=%.6f' % (statistics_W[1], p[1]))
+alpha = 0.05 #nível de significância
+if p[1] > alpha:
+    print('Não se rejeita H0 - Distribuição aderente à normalidade')
+else:
+    print('Rejeita-se H0 - Distribuição não aderente à normalidade')
+
 #%%
 # In[4.8]: Transformação de Box-Cox
-
+ 
 # Para o cálculo do lambda de Box-Cox
 from scipy.stats import boxcox
 
@@ -1677,7 +1731,26 @@ modelo_empresas = sm.OLS.from_formula('retorno ~ disclosure +\
 
 # Parâmetros do 'modelo_empresas'
 modelo_empresas.summary()
+
+#%% Modelo auxiliar - somente o individamento
+modelo_aux1 = sm.OLS.from_formula('retorno ~ endividamento', df_empresas).fit()
+modelo_aux1.summary()
+
+
+#%% Modelo auxiliar - sem o individamento
+modelo_aux2 = sm.OLS.from_formula('retorno ~ disclosure + ativos + liquidez', df_empresas).fit()
+modelo_aux2.summary()
+
+#%% Modelo auxiliar - sem o disclosure
+modelo_aux3 = sm.OLS.from_formula('retorno ~ ativos + liquidez', df_empresas).fit()
+modelo_aux3.summary()
+
+#%% Modelo auxiliar - somente o disclosure
+modelo_aux4 = sm.OLS.from_formula('retorno ~ disclosure', df_empresas).fit()
+modelo_aux4.summary()
+
 #%%
+# In[5.5]: Estimando o Modelo de Regressão Múltipla
 # Note que o parâmetro da variável 'endividamento' não é estatisticamente
 #significante ao nível de significância de 5% (nível de confiança de 95%).
 
@@ -1760,7 +1833,7 @@ df_empresas
 # Verificação do cálculo, apenas para fins didáticos
 df_empresas['bc_retorno2'] = ((df_empresas['retorno'])**(lmbda) - 1) / (lmbda)
 df_empresas
-
+#%%
 del df_empresas['bc_retorno2']
 #%%
 # In[5.11]: Estimando um novo modelo múltiplo com variável dependente
@@ -1776,6 +1849,7 @@ modelo_bc.summary()
 # In[5.12]: Aplicando o procedimento Stepwise no 'modelo_bc"
 
 modelo_step_empresas_bc = stepwise(modelo_bc, pvalue_limit=0.05)
+modelo_step_empresas_bc.summary()
 
 # Note que a variável 'disclosure' retorna ao modelo na forma funcional
 #não linear!
