@@ -2104,6 +2104,32 @@ plt.show()
 modelo1 = sm.OLS.from_formula('salario ~ rh1 + econometria1', df_salarios).fit()
 
 modelo1.summary()
+
+#%% Validação modelo apenas com parametro rh1
+modelo1_aux1 = sm.OLS.from_formula('salario ~ rh1', df_salarios).fit()
+modelo1_aux1.summary()
+
+#%% Procedimento stepwise no modelo 1
+from statstests.process import stepwise
+modelo1_step = stepwise(modelo1, pvalue_limit=0.05)
+modelo1_step.summary()
+
+#%% Validação modelo apenas com parametro econometria1
+modelo1_aux2 = sm.OLS.from_formula('salario ~ econometria1', df_salarios).fit()
+modelo1_aux2.summary() # igual ao output do procedimento stepwise acima
+
+#%% Modelo 1 aux3, rodando 'rh1' em função de 'econometria1'
+modelo1_aux3 = sm.OLS.from_formula('rh1 ~ econometria1', df_salarios).fit()
+modelo1_aux3.summary()
+
+#%% Calculo da tolerance
+tolerance1 = 1 - modelo1_aux3.rsquared
+tolerance1
+
+#%% Calculo do Vif
+vif1 = 1 / tolerance1
+vif1
+
 #%%
 # In[6.5]: Diagnóstico de multicolinearidade (Variance Inflation Factor
 #e Tolerance)
@@ -2126,7 +2152,7 @@ VIF
 # Correlação entre 'rh2' e 'econometria2', com p-value
 corr2, p_value2 = pearsonr(df_salarios['rh2'], df_salarios['econometria2'])
 "{:.4f}".format(corr2), "{:.4f}".format(p_value2)
-
+#%%
 # Matriz de correlação (maneira simples) pela função 'corr'
 corr2 = df_salarios[['rh2','econometria2']].corr()
 corr2
@@ -2251,6 +2277,7 @@ VIF
 df_saeb_rend = pd.read_csv('saeb_rend.csv', delimiter=',')
 df_saeb_rend
 #%%
+df_saeb_rend['codigo'] = df_saeb_rend['codigo'].astype(str)
 # Características das variáveis do dataset
 df_saeb_rend.info()
 
@@ -2260,8 +2287,9 @@ df_saeb_rend.describe()
 # In[7.1]: Tabela de frequências absolutas das variáveis 'uf' e rede'
 
 df_saeb_rend['uf'].value_counts().sort_index()
+#%%
 df_saeb_rend['rede'].value_counts().sort_index()
-
+#%%
 # In[7.2]: Plotando a variável 'saeb' em função de 'rendimento', com fit linear
 # Gráfico pela função 'regplot' do 'seaborn'
 
@@ -2423,7 +2451,8 @@ lista_colunas = list(df_saeb_rend_dummies.drop(columns=['municipio',
                                                         'rede',
                                                         'saeb',
                                                         'fitted',
-                                                        'residuos']).columns)
+                                                        'residuos',
+                                                        'up']).columns)
 formula_dummies_modelo = ' + '.join(lista_colunas)
 formula_dummies_modelo = "saeb ~ " + formula_dummies_modelo
 
@@ -2433,6 +2462,16 @@ modelo_saeb_dummies_uf = sm.OLS.from_formula(formula_dummies_modelo,
 
 # Parâmetros do modelo 'modelo_saeb_dummies_uf'
 modelo_saeb_dummies_uf.summary()
+
+#%%
+teste_bp = breusch_pagan_test(modelo_saeb_dummies_uf) #criação do objeto 'teste_bp'
+chisq, p = teste_bp #definição dos elementos contidos no objeto 'teste_bp'
+alpha = 0.05 #nível de significância
+if p > alpha:
+    print('Não se rejeita H0 - Ausência de Heterocedasticidade')
+else:
+	print('Rejeita-se H0 - Existência de Heterocedasticidade')
+
 #%%
 # In[7.12]: Estimação do modelo por meio do procedimento Stepwise
 
