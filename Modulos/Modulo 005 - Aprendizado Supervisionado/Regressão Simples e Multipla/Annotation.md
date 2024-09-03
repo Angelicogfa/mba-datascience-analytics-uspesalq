@@ -12,3 +12,13 @@
 > Características:
 * **Variabilidade**: Os resultados podem diferir em diferentes execuções do modelo, mesmo com as mesmas condições iniciais.
 * **Exemplo**: A previsão do tempo é um modelo estocástico, pois incorpora a incerteza e a variabilidade inerentes aos sistemas climáticos.
+
+## Calculo para box-cox
+
+y_box_cox = (y ^ lambda - 1) / lambda
+
+y_box_cox_i  = alpha + beta_i * X_i + u_i
+
+y_hat_i = alpha + beta_i * X_i
+
+y_norm = (y_hat * lambda - 1) ^ (1 / lambda)
