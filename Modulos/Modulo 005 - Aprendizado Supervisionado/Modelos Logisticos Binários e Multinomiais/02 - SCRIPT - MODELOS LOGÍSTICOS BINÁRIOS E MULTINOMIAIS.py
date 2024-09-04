@@ -806,8 +806,8 @@ Qui2(modelo_atrasado)
 # 2: chegou atrasado segunda aula
 
 resultado = modelo_atrasado.predict(pd.DataFrame({'const':[1],
-                                                   'dist':[22],
-                                                   'sem':[12]})).round(4)
+                                                   'dist':[25],
+                                                   'sem':[14]})).round(4)
 
 resultado
 #%%

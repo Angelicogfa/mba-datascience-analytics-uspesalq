@@ -14,4 +14,4 @@
 2. Aprendizado supervisionado
    1. Regressão Linear Simples e Multipla
    2. Regressão Logistica Binária e Multinomial
-   3. Regressão para Dados de Contagem
+   3. Modelos para Dados de Contagem
