@@ -5,16 +5,16 @@
 
 # Prof. Dr. Wilson Tarantin Junior
 
-#%% Instalando os pacotes
+# #%% Instalando os pacotes
 
-! pip install pandas
-! pip install numpy
-! pip install scipy
-! pip install plotly
-! pip install seaborn
-! pip install matplotlib
-! pip install statsmodels
-! pip install prince
+# ! pip install pandas
+# ! pip install numpy
+# ! pip install scipy
+# ! pip install plotly
+# ! pip install seaborn
+# ! pip install matplotlib
+# ! pip install statsmodels
+# ! pip install prince
 
 #%% Importando os pacotes necessários
 

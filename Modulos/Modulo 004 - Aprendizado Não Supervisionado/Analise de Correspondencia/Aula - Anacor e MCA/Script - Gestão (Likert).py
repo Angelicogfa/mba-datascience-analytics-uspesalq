@@ -119,7 +119,7 @@ print(ca.total_inertia_)
 
 # Coordenadas da variável em linha
 print(ca.row_coordinates(tabela))
-
+#%%
 # Coordenadas da variável em coluna
 print(ca.column_coordinates(tabela))
 

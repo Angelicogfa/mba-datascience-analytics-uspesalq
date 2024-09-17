@@ -7,7 +7,7 @@
 # coding: utf-8
 #%%
 # In[0.1]: Instalação dos pacotes
-
+!pip install tqdm
 !pip install pandas
 !pip install numpy
 !pip install -U seaborn
@@ -124,7 +124,6 @@ contagem = df_corruption['violations'].value_counts(dropna=False)
 percent = (df_corruption['violations'].value_counts(dropna=False, normalize=True)*100).round(2)
 table = pd.concat([contagem, percent], axis=1, keys=['contagem', '%'], sort=True)
 table
-#%%
 # In[2]: Visualização da tabela de frequências da variável dependente 'violations'
 #no ambiente Plots (apenas para fins didáticos)
 
@@ -199,7 +198,10 @@ plt.show()
 # O argumento 'family=sm.families.Poisson()' da função 'smf.glm' define a
 #estimação de um modelo Poisson
 
-modelo_poisson = smf.glm(formula='violations ~ staff + post + corruption',
+modelo_poisson = 
+
+
+.glm(formula='violations ~ staff + post + corruption',
                          data=df_corruption,
                          family=sm.families.Poisson()).fit()
 
@@ -215,7 +217,6 @@ summary_col([modelo_poisson],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
         })
-#%%
 # In[8]: Todas as variáveis preditoras se mostraram estatisticamente
 #diferentes de zero, considerando-se um nível de significância de 5%,
 #ceteris paribus. Porém, já se pode afirmar que a estimação Poisson é a mais
@@ -251,12 +252,12 @@ modelo_auxiliar = sm.OLS.from_formula('ystar ~ 0 + lambda_poisson',
 
 # Parâmetros do 'modelo_auxiliar'
 modelo_auxiliar.summary()
-#%%
+
 # Caso o p-value do parâmetro de lambda_poisson seja maior que 0.05,
-#verifica-se a existência de equidispersão nos dados.
+# verifica-se a existência de equidispersão nos dados.
 # Caso contrário, diagnostica-se a existência de superdispersão nos dados, fato
-#que favorecerá a estimação de um modelo binomial negativo, como ocorre nesse
-#caso.
+# que favorecerá a estimação de um modelo binomial negativo, como ocorre nesse
+# caso.
 
 # In[9]: Função 'overdisp'
 
@@ -279,9 +280,9 @@ overdisp(modelo_poisson, df_corruption)
 #considerando o período anterior à vigência da lei e cujo índice de corrupção
 #seja igual a 0.5?
 
-modelo_poisson.predict(pd.DataFrame({'staff':[23],
+modelo_poisson.predict(pd.DataFrame({'staff':[28],
                                      'post':['no'],
-                                     'corruption':[0.5]}))
+                                     'corruption':[1.]}))
 #%%
 # Qual seria a quantidade média esperada de violações de trânsito para o mesmo
 #país, porém agora considerando a vigência da lei?
@@ -358,7 +359,6 @@ plt.legend([r'$\theta$ = 2 e $\delta$ = 2',
             r'$\theta$ = 3 e $\delta$ = 0.5'],
            fontsize=24)
 plt.show
-#%%
 # In[11]: Estimação do modelo binomial negativo do tipo NB2
 
 # O argumento 'family=sm.families.NegativeBinomial(alpha=2.0963)' da função
@@ -373,7 +373,6 @@ modelo_bneg = smf.glm(formula='violations ~ staff + post + corruption',
 
 # Parâmetros do 'modelo_bneg'
 modelo_bneg.summary()
-#%%
 # In[12]: Construção de uma função para a definição do 'fi' ótimo (argumento 'alpha')
 # que gera a maximização do valor de Log-Likelihood
 
@@ -410,7 +409,7 @@ plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.legend(loc='lower right', fontsize=17)
 plt.show()
-#%%
+
 # In[14]: Reestimação do modelo binomial negativo com o parâmetro 'fi_ótimo'
 
 modelo_bneg = smf.glm(formula='violations ~ staff + post + corruption',
@@ -419,7 +418,7 @@ modelo_bneg = smf.glm(formula='violations ~ staff + post + corruption',
 
 # Parâmetros do 'modelo_bneg'
 modelo_bneg.summary()
-#%%
+
 # In[15]: Comparando os modelos Poisson e binomial negativo
 
 summary_col([modelo_poisson, modelo_bneg], 
@@ -429,7 +428,7 @@ summary_col([modelo_poisson, modelo_bneg],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
                 })
-#%%
+
 # In[16]: Definição da função para realização do teste de razão de verossimilhança
 
 # Definição da função 'lrtest'
@@ -454,7 +453,6 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-#%%
 # In[17]: Teste de de razão de verossimilhança para comparar as estimações dos
 #'modelo_poisson' e 'modelo_bneg'
 
@@ -480,7 +478,7 @@ ax.set_xlabel("LogLik", fontsize=20)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-#%%
+
 # In[19]: Gráfico para a comparação dos LogLiks dos modelos Poisson e
 #binomial negativo, com JPG para fins didáticos
 
@@ -523,7 +521,7 @@ plt.figimage(imagem_redimensionada, posicao_x, posicao_y, zorder=1, alpha=0.73)
 
 # Exibe o gráfico com a imagem
 plt.show()
-#%%
+
 # In[20]: COMPARAÇÕES ENTRE AS PREVISÕES:
 
 # Qual seria a quantidade média esperada de violações de trânsito para um país
@@ -541,7 +539,7 @@ modelo_poisson.predict(pd.DataFrame({'staff':[23],
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
                                   'post':['no'],
                                   'corruption':[0.5]}))
-#%%
+
 # In[21]: COMPARAÇÕES ENTRE AS PREVISÕES (continuação):
 
 # Qual seria a quantidade média esperada de violações de trânsito para o mesmo
@@ -558,7 +556,7 @@ modelo_poisson.predict(pd.DataFrame({'staff':[23],
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
                                   'post':['yes'],
                                   'corruption':[0.5]}))
-#%%
+
 # In[22]: Adicionando os fitted values dos modelos estimados até o momento,
 #para fins de comparação
 
@@ -570,7 +568,7 @@ df_corruption['fitted_bneg'] = modelo_bneg.fittedvalues
 
 # Visualização do dataframe com os fitted values do modelos estimados
 df_corruption[['country','code','violations','fitted_poisson','fitted_bneg']]
-#%%
+
 # In[23]: Fitted values dos modelos Poisson e binomial negativo, considerando,
 #para fins didáticos, apenas a variável preditora 'staff'
 
@@ -620,7 +618,6 @@ df_corruption2.info()
 # Estatísticas univariadas (note que o valor máximo de ocorrências na variável
 #'violations' agora é 3)
 df_corruption2.describe()
-#%%
 # In[25]: Histograma da variável dependente 'violations' no dataframe 'df_corruption2'
 
 with sns.axes_style("whitegrid"):
@@ -632,14 +629,14 @@ with sns.axes_style("whitegrid"):
     plt.xticks(range(4), fontsize=14)
     plt.yticks(fontsize=14)
     plt.show()
-#%%
+
 # In[26]: Diagnóstico preliminar para observação de eventual igualdade entre
 #a média e a variância da variável dependente 'violations' no dataframe
 #'df_corruption2'
 
 pd.DataFrame({'Média':[df_corruption2['violations'].mean()],
               'Variância':[df_corruption2['violations'].var()]})
-#%%
+
 # In[27]: Estimação do 'modelo_poisson2'
 
 modelo_poisson2 = smf.glm(formula='violations ~ staff + post + corruption',
@@ -648,7 +645,7 @@ modelo_poisson2 = smf.glm(formula='violations ~ staff + post + corruption',
 
 # Parâmetros do 'modelo_poisson2'
 modelo_poisson2.summary()
-#%%
+
 # In[28]: Teste de superdispersão no dataset 'corruption2'
 
 # Função 'overdisp'
@@ -661,6 +658,12 @@ from statstests.tests import overdisp
 # Elaboração direta do teste de superdispersão
 overdisp(modelo_poisson2, df_corruption2)
 #%%
+
+
+modelo_bneg_direto2 = sm.NegativeBinomial.from_formula('violations ~ staff + post + corruption',
+                                                      data=df_corruption2).fit()
+
+modelo_bneg_direto2.summary()
 # In[29]: Estimação do modelo binomial negativo ('modelo_bneg2') no dataframe
 #'df_corruption2'
 
@@ -690,7 +693,7 @@ modelo_bneg2 = smf.glm(formula='violations ~ staff + post + corruption',
 
 # Parâmetros do 'modelo_bneg2'
 modelo_bneg2.summary()
-#%%
+
 # In[30]: Comparando os parâmetros e os valores de LogLiks dos 'modelo_poisson2'
 #e 'modelo_bneg2'
 
@@ -701,7 +704,7 @@ summary_col([modelo_poisson2, modelo_bneg2],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
                 })
-#%%
+
 # In[31]: Definição da função para realização do teste de razão de verossimilhança
 
 # Definição da função 'lrtest' (já definida anteriormente neste código)
@@ -726,7 +729,7 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-#%%
+
 # In[32]: Teste de de razão de verossimilhança para comparar as estimações dos
 #'modelo_poisson2' e 'modelo_bneg2'
 
@@ -816,11 +819,14 @@ X1 = sm.add_constant(x1)
 # Se estimarmos o modelo sem dummizar as variáveis categóricas, o modelo retorna
 #um erro
 X1 = pd.get_dummies(X1, columns=['post'], dtype=int, drop_first=True)
-
+X1
+#%%
 # Definição das variáveis preditoras que entrarão no componente logit (inflate)
 x2 = df_corruption[['corruption']]
 X2 = sm.add_constant(x2)
 
+X2
+#%%
 # O argumento 'exog_infl' corresponde às variáveis que entram no componente
 #logit (inflate)
 modelo_zip = sm.ZeroInflatedPoisson(y, X1, exog_infl=X2,

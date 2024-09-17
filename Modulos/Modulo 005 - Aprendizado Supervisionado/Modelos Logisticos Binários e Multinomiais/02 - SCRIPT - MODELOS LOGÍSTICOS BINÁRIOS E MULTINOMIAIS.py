@@ -8,15 +8,15 @@
 #%%
 # In[0.1]: Instalação dos pacotes
 
-!pip install pandas
-!pip install numpy
-!pip install -U seaborn
-!pip install matplotlib
-!pip install plotly
-!pip install scipy
-!pip install statsmodels
-!pip install scikit-learn
-!pip install statstests
+# !pip install pandas
+# !pip install numpy
+# !pip install -U seaborn
+# !pip install matplotlib
+# !pip install plotly
+# !pip install scipy
+# !pip install statsmodels
+# !pip install scikit-learn
+# !pip install statstests
 
 #%%
 # In[0.2]: Importação dos pacotes
