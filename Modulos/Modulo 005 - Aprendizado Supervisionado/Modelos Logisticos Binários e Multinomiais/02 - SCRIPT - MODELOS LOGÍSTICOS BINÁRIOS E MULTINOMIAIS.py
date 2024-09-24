@@ -5,20 +5,19 @@
 
 #!/usr/bin/env python
 # coding: utf-8
-#%%
+
 # In[0.1]: Instalação dos pacotes
 
-# !pip install pandas
-# !pip install numpy
-# !pip install -U seaborn
-# !pip install matplotlib
-# !pip install plotly
-# !pip install scipy
-# !pip install statsmodels
-# !pip install scikit-learn
-# !pip install statstests
+!pip install pandas
+!pip install numpy
+!pip install -U seaborn
+!pip install matplotlib
+!pip install plotly
+!pip install scipy
+!pip install statsmodels
+!pip install scikit-learn
+!pip install statstests
 
-#%%
 # In[0.2]: Importação dos pacotes
 
 import pandas as pd # manipulação de dados em formato de dataframe
@@ -37,7 +36,7 @@ from statsmodels.discrete.discrete_model import MNLogit # estimação do modelo
 import warnings
 warnings.filterwarnings('ignore')
 
-#%%
+
 # In[PARTE CONCEITUAL]:
 #############################################################################
 #                             CURVA SIGMOIDE                                #
@@ -50,7 +49,7 @@ from math import exp
 # Estabelecendo uma função para a probabilidade de ocorrência de um evento
 def prob(z):
     return 1 / (1 + exp(-z))
-#%%
+
 # In[SIGMOIDE]: Plotando a curva sigmoide teórica de ocorrência de um evento
 #para um range do logito z entre -5 e +5
 
@@ -62,8 +61,7 @@ for i in np.arange(-5, 6):
     probs.append(prob(i))
     
 df = pd.DataFrame({'logito': logitos, 'probs': probs})
-df.head()
-#%%
+
 # Interpolação spline (smooth probability line)
 spline = UnivariateSpline(df['logito'], df['probs'], s=0)
 
@@ -83,7 +81,7 @@ plt.yticks(np.arange(0, 1.1, 0.1), fontsize=14)
 plt.legend(fontsize=18, loc='center right')
 plt.show()
 
-#%%
+
 # In[EXEMPLO 1]:
 #############################################################################
 #                      REGRESSÃO LOGÍSTICA BINÁRIA                          #                  
@@ -92,18 +90,17 @@ plt.show()
 
 df_atrasado = pd.read_csv('atrasado.csv',delimiter=',')
 df_atrasado
-#%%
+
 # Características das variáveis do dataset
 df_atrasado.info()
-#%%
+
 # Estatísticas univariadas
 df_atrasado.describe()
-#%%
+
 # In[1.1]: Tabela de frequências absolutas da variável 'atrasado'
 
 df_atrasado['atrasado'].value_counts().sort_index()
 
-#%%
 # In[1.2]: Estimação de um modelo logístico binário pela função 'smf.glm'
 #('statsmodels.formula.api')
 
@@ -112,7 +109,7 @@ modelo_atrasos = smf.glm(formula='atrasado ~ dist + sem', data=df_atrasado,
 
 # Parâmetros do 'modelo_atrasos'
 modelo_atrasos.summary()
-#%%
+
 # In[1.3]: Outputs do modelo pela função 'summary_col'
 
 summary_col([modelo_atrasos],
@@ -122,7 +119,7 @@ summary_col([modelo_atrasos],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.3f}".format(x.llf)
         })
-#%%
+
 # In[1.4]: Fazendo predições para o 'modelo_atrasos'.
 #Exemplo: qual a probabilidade média de se chegar atrasado quando o
 #trajeto tem 7 km e passa-se por 10 semáforos no percurso?
@@ -136,7 +133,7 @@ df_atrasado['phat'] = modelo_atrasos.predict()
 
 # Visualização da base de dados com a variável 'phat'
 df_atrasado
-#%%
+
 # In[1.6]: Gráficos com ajustes entre a variável dependente e a variável 'sem'
     
 # Ajuste linear entre a variável dependente e a variável 'sem' (Gráfico errado:
@@ -154,7 +151,7 @@ plt.xticks(np.arange(0, df_atrasado['sem'].max() + 0.01),
            fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show
-#%%
+
 # In[1.7]: Ajuste logístico determinístico entre a variável dependente e a
 #variável 'sem'
 
@@ -172,7 +169,7 @@ plt.xticks(np.arange(0, df_atrasado['sem'].max() + 0.01),
            fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show
-#%%
+
 # In[1.8]: Ajuste logístico probabilístico entre a variável dependente e a
 #variável 'sem'
 
@@ -190,7 +187,7 @@ plt.xticks(np.arange(0, df_atrasado['sem'].max() + 0.01),
            fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show
-#%%
+
 # In[1.9]: Construção de função para a definição da matriz de confusão
 
 from sklearn.metrics import confusion_matrix, accuracy_score,\
@@ -226,24 +223,24 @@ def matriz_confusao(predicts, observado, cutoff):
                                 'Especificidade':[especificidade],
                                 'Acurácia':[acuracia]})
     return indicadores
-#%%
+
 # In[1.10]: Matrizes de confusão propriamente ditas
 
 # Matriz de confusão para cutoff = 0.5
 matriz_confusao(observado=df_atrasado['atrasado'],
                 predicts=df_atrasado['phat'], 
                 cutoff=0.5)
-#%%
+
 # Matriz de confusão para cutoff = 0.3
 matriz_confusao(observado=df_atrasado['atrasado'],
                 predicts=df_atrasado['phat'], 
                 cutoff=0.3)
-#%%
+
 # Matriz de confusão para cutoff = 0.7
 matriz_confusao(observado=df_atrasado['atrasado'],
                 predicts=df_atrasado['phat'], 
                 cutoff=0.7)
-#%%
+
 # In[1.11]: Igualando critérios de especificidade e de sensitividade
 
 # Tentaremos estabelecer um critério que iguale a probabilidade de
@@ -290,7 +287,7 @@ def espec_sens(observado,predicts):
     # Criar dataframe com os resultados nos seus respectivos cutoffs
     resultado = pd.DataFrame({'cutoffs':cutoffs,'sensitividade':lista_sensitividade,'especificidade':lista_especificidade})
     return resultado
-#%%
+
 # In[1.12]: Até o momento, foram extraídos 3 vetores: 'sensitividade',
 #'especificidade' e 'cutoffs'. Assim, criamos um dataframe que contém
 #os vetores mencionados (dataframe 'dados_plotagem')
@@ -298,7 +295,7 @@ def espec_sens(observado,predicts):
 dados_plotagem = espec_sens(observado = df_atrasado['atrasado'],
                             predicts = df_atrasado['phat'])
 dados_plotagem
-#%%
+
 # In[1.13]: Plotagem de um gráfico que mostra a variação da especificidade e da
 #sensitividade em função do cutoff
 
@@ -314,7 +311,7 @@ plt.xticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.legend(['Sensitividade', 'Especificidade'], fontsize=20)
 plt.show()
-#%%
+
 # In[1.14]: Construção da curva ROC
 
 from sklearn.metrics import roc_curve, auc
@@ -338,7 +335,7 @@ plt.ylabel('Sensitividade', fontsize=20)
 plt.xticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show()
-#%%
+
 
 # In[EXEMPLO 2]:
 #############################################################################
@@ -348,13 +345,13 @@ plt.show()
 
 df_challenger = pd.read_csv('challenger.csv',delimiter=',')
 df_challenger
-#%%
+
 # Características das variáveis do dataset
 df_challenger.info()
-#%%
+
 # Estatísticas univariadas
 df_challenger.describe()
-#%%
+
 # desgaste: quantidade de vezes em que ocorreu stress térmico
 # temperatura: temperatura de lançamento (graus ºF)
 # pressão: pressão de verificação de vazamento (psi: libra-força por
@@ -375,13 +372,13 @@ df_challenger.loc[df_challenger['desgaste'] == 0, 'falha'] = 0
 #função 'sm.Logit.from_formula'
 
 df_challenger.info()
-#%%
+
 df_challenger['falha'] = df_challenger['falha'].astype('int64')
 
 df_challenger.info()
-#%%
+
 df_challenger
-#%%
+
 # In[2.2]: Gráfico 'pairplot' com scatters e KDEs por 'falha'
 
 cores_desejadas = {0: 'springgreen', 1: 'magenta'}
@@ -391,7 +388,7 @@ g = sns.pairplot(df_challenger[['falha','temperatura','pressão']], hue='falha',
 g.fig.set_size_inches(8, 6)
 plt.show()
 
-#%%
+
 # In[2.3]: Estimação do modelo logístico binário pela função 'sm.Logit.from_formula'
 #('statsmodels.api')
 
@@ -403,7 +400,7 @@ modelo_challenger = sm.Logit.from_formula('falha ~ temperatura + pressão',
 
 # Parâmetros do 'modelo_challenger'
 modelo_challenger.summary()
-#%%
+
 # In[2.4]: Procedimento Stepwise
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -414,25 +411,25 @@ from statstests.process import stepwise
 
 # Estimação do modelo por meio do procedimento Stepwise
 step_challenger = stepwise(modelo_challenger, pvalue_limit=0.05)
-#%%
+
 # In[2.5]: Fazendo predições para o modelo 'step_challenger'
 
 # Exemplo 1: qual a probabilidade média de falha a 70ºF (~21.11ºC)?
 step_challenger.predict(pd.DataFrame({'temperatura':[70]}))
-#%%
+
 # Exemplo 2: qual a probabilidade média de falha a 77ºF (25ºC)?
 step_challenger.predict(pd.DataFrame({'temperatura':[77]}))
-#%%
+
 # Exemplo 3: qual a probabilidade média de falha a 34ºF (~1.11ºC)?
 # Temperatura no momento do lançamento
 step_challenger.predict(pd.DataFrame({'temperatura':[34]}))
-#%%
+
 # In[2.6]: Atribuindo uma coluna no dataframe para os resultados
 
 df_challenger['phat'] = step_challenger.predict()
 
 df_challenger
-#%%
+
 # In[2.7]: Construção da sigmoide
 # Probabilidade de evento em função da variável 'temperatura'    
 
@@ -455,7 +452,7 @@ plt.xticks(np.arange(df_challenger['temperatura'].min(),
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.legend(fontsize=20, loc='center right')
 plt.show()
-#%%
+
 # In[2.8]: Nossa homenagem aos astronautas
 
 from PIL import Image
@@ -466,7 +463,7 @@ url = "https://img.ibxk.com.br///2016/01/29/29182307148581.jpg?w=1200&h=675&mode
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
 img.show()    
-#%%
+
 
 # In[EXEMPLO 3]:
 #############################################################################
@@ -476,13 +473,13 @@ img.show()
 
 df_fidelidade = pd.read_csv('dados_fidelidade.csv',delimiter=',')
 df_fidelidade
-#%%
+
 # Características das variáveis do dataset
 df_fidelidade.info()
-#%%
+
 # Estatísticas univariadas
 df_fidelidade.describe()
-#%%
+
 # In[3.1]: Alteração dos tipos das variáveis não quantitativas no dataframe
 
 # Transformação do 'id' para o tipo 'str'
@@ -496,25 +493,20 @@ df_fidelidade['preço'] = df_fidelidade['preço'].astype('object')
 
 # Características das variáveis do dataset
 df_fidelidade.info()
-#%%
+
 # Estatísticas univariadas
 df_fidelidade.describe()
-#%%
+
 # In[3.2]: Tabela de frequências absolutas das variáveis qualitativas referentes
 #aos atributos da loja na percepção dos consumidores
 
 df_fidelidade['fidelidade'].value_counts().sort_index()
-#%%
 df_fidelidade['sexo'].value_counts().sort_index()
-#%%
 df_fidelidade['atendimento'].value_counts().sort_index()
-#%%
 df_fidelidade['sortimento'].value_counts().sort_index()
-#%%
 df_fidelidade['acessibilidade'].value_counts().sort_index()
-#%%
 df_fidelidade['preço'].value_counts().sort_index()
-#%%
+
 # In[3.3]: Note que a variável Y 'fidelidade' está definida como objeto
 #(PROBLEMA!!!)
 
@@ -528,7 +520,7 @@ df_fidelidade.loc[df_fidelidade['fidelidade']=='nao', 'fidelidade'] = 0
 df_fidelidade['fidelidade'] = df_fidelidade['fidelidade'].astype('int64')
 
 df_fidelidade
-#%%
+
 # In[3.4]: Dummizando as variáveis 'atendimento', 'sortimento', 'acessibilidade',
 #'preço' e 'sexo'. O código abaixo, automaticamente, fará:
 # a) a dummização das variáveis originais;
@@ -546,7 +538,7 @@ df_fidelidade_dummies = pd.get_dummies(df_fidelidade,
                                        drop_first=True)
 
 df_fidelidade_dummies
-#%%
+
 # In[3.5]: Estimação do modelo logístico binário
 
 # Sugestão de uso neste caso, dada a existência de muitas dummies no dataframe
@@ -557,14 +549,14 @@ lista_colunas = list(df_fidelidade_dummies.drop(columns=['id',
 formula_dummies_modelo = ' + '.join(lista_colunas)
 formula_dummies_modelo = "fidelidade ~ " + formula_dummies_modelo
 print("Fórmula utilizada: ",formula_dummies_modelo)
-#%%
+
 # Modelo propriamente dito
 modelo_fidelidade = sm.Logit.from_formula(formula_dummies_modelo,
                                                df_fidelidade_dummies).fit()
 
 # Parâmetros do 'modelo_fidelidade'
 modelo_fidelidade.summary()
-#%%
+
 # In[3.6]: Procedimento Stepwise
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -575,7 +567,7 @@ from statstests.process import stepwise
 
 #Estimação do modelo por meio do procedimento Stepwise
 step_modelo_fidelidade = stepwise(modelo_fidelidade, pvalue_limit=0.05)
-#%%
+
 # In[3.7]: Construção de função para a definição da matriz de confusão
 
 from sklearn.metrics import confusion_matrix, accuracy_score,\
@@ -611,7 +603,7 @@ def matriz_confusao(predicts, observado, cutoff):
                                 'Especificidade':[especificidade],
                                 'Acurácia':[acuracia]})
     return indicadores
-#%%
+
 # In[3.8]: Construção da matriz de confusão
 
 # Adicionando os valores previstos de probabilidade na base de dados
@@ -621,7 +613,7 @@ df_fidelidade_dummies['phat'] = step_modelo_fidelidade.predict()
 matriz_confusao(observado=df_fidelidade_dummies['fidelidade'],
                 predicts=df_fidelidade_dummies['phat'],
                 cutoff=0.50)
-#%%
+
 # In[3.9]: Igualando critérios de especificidade e de sensitividade
 
 # Tentaremos estabelecer um critério que iguale a probabilidade de
@@ -668,7 +660,7 @@ def espec_sens(observado,predicts):
     # Criar dataframe com os resultados nos seus respectivos cutoffs
     resultado = pd.DataFrame({'cutoffs':cutoffs,'sensitividade':lista_sensitividade,'especificidade':lista_especificidade})
     return resultado
-#%%
+
 # In[3.10]: Até o momento, foram extraídos 3 vetores: 'sensitividade',
 #'especificidade' e 'cutoffs'. Assim, criamos um dataframe que contém
 #os vetores mencionados
@@ -676,7 +668,7 @@ def espec_sens(observado,predicts):
 dados_plotagem = espec_sens(observado = df_fidelidade_dummies['fidelidade'],
                             predicts = df_fidelidade_dummies['phat'])
 dados_plotagem
-#%%
+
 # In[3.11]: Plotagem de um gráfico que mostra a variação da especificidade e da
 #sensitividade em função do cutoff
 
@@ -692,7 +684,7 @@ plt.xticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.legend(['Sensitividade', 'Especificidade'], fontsize=20)
 plt.show()
-#%%
+
 # In[3.12]: Construção da curva ROC
 
 from sklearn.metrics import roc_curve, auc
@@ -717,7 +709,7 @@ plt.ylabel('Sensitividade', fontsize=20)
 plt.xticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.yticks(np.arange(0, 1.1, 0.2), fontsize=14)
 plt.show()
-#%%
+
 
 # In[EXEMPLO 4]:
 #############################################################################
@@ -727,13 +719,13 @@ plt.show()
 
 df_atrasado_multinomial = pd.read_csv('atrasado_multinomial.csv',delimiter=',')
 df_atrasado_multinomial
-#%%
+
 # Características das variáveis do dataset
 df_atrasado_multinomial.info()
-#%%
+
 # Estatísticas univariadas
 df_atrasado_multinomial.describe()
-#%%
+
 # In[4.1]: Note que a variável Y 'atrasado' está definida como objeto
 
 # Tabela de frequências absolutas da variável 'atrasado' com labels
@@ -761,9 +753,9 @@ df_atrasado_multinomial['atrasado2'] =\
     df_atrasado_multinomial['atrasado2'].astype('int64')
 
 df_atrasado_multinomial.info()
-#%%
+
 df_atrasado_multinomial
-#%%
+
 # In[4.2]: Estimação do modelo logístico multinomial
 
 x = df_atrasado_multinomial.drop(columns=['estudante','atrasado','atrasado2'])
@@ -777,7 +769,7 @@ modelo_atrasado = MNLogit(endog=y, exog=X).fit()
 
 # Parâmetros do modelo 'modelo_atrasado'
 modelo_atrasado.summary()
-#%%
+
 # In[4.3]: Vamos definir uma função 'Qui2' para se extrair a estatística geral
 # do modelo
 
@@ -785,15 +777,15 @@ def Qui2(modelo_multinomial):
     maximo = modelo_multinomial.llf
     minimo = modelo_multinomial.llnull
     qui2 = -2*(minimo - maximo)
-    pvalue = stats.distributions.chi2.sf(qui2,4)
+    pvalue = stats.distributions.chi2.sf(qui2,1)
     df = pd.DataFrame({'Qui quadrado':[qui2],
                        'pvalue':[pvalue]})
     return df
-#%%
+
 # In[4.4]: Estatística geral do 'modelo_atrasado'
 
 Qui2(modelo_atrasado)
-#%%
+
 # In[4.5]: Fazendo predições para o 'modelo_atrasado'
 
 # Exemplo: qual a probabilidade média de atraso para cada categoria da
@@ -806,11 +798,11 @@ Qui2(modelo_atrasado)
 # 2: chegou atrasado segunda aula
 
 resultado = modelo_atrasado.predict(pd.DataFrame({'const':[1],
-                                                   'dist':[25],
-                                                   'sem':[14]})).round(4)
+                                                   'dist':[22],
+                                                   'sem':[12]})).round(4)
 
 resultado
-#%%
+
 # Uma maneira de identificar a classe do resultado de acordo com o 'predict'
 resultado.idxmax(axis=1)
 
@@ -822,24 +814,24 @@ resultado.idxmax(axis=1)
 # Definição do array 'phats':
 phats = modelo_atrasado.predict()
 phats
-#%%
+
 # Transformação do array 'phats' para o dataframe 'phats':
 phats = pd.DataFrame(phats)
 phats
-#%%
+
 # Concatenando o dataframe original com o dataframe 'phats':
 df_atrasado_multinomial = pd.concat([df_atrasado_multinomial, phats], axis=1)
 df_atrasado_multinomial
-#%%
+
 # Analisando o resultado de acordo com a categoria de resposta:
 predicao = phats.idxmax(axis=1)
 predicao
-#%%
+
 # Adicionando a categoria de resposta 'predicao' ao dataframe original,
 #por meio da criação da variável 'predicao'
 df_atrasado_multinomial['predicao'] = predicao
 df_atrasado_multinomial
-#%%
+
 # Criando a variável 'predicao_label' a partir da variável 'predicao',
 #respeitando os seguintes rótulos:
 # 0: não chegou atrasado
@@ -854,7 +846,7 @@ df_atrasado_multinomial.loc[df_atrasado_multinomial['predicao']==2,
                             'predicao_label'] ='chegou atrasado segunda aula'
 
 df_atrasado_multinomial
-#%%
+
 # In[4.7]: Criação de tabela para cálculo da eficiência global do modelo
 
 # Criando uma tabela para comparar as ocorrências reais com as predições
@@ -863,11 +855,11 @@ table = pd.pivot_table(df_atrasado_multinomial,
                        columns=['atrasado'],
                        aggfunc='size')
 table
-#%%
+
 # Substituindo 'NaN' por zero
 table = table.fillna(0)
 table
-#%%
+
 # In[4.8]: Visualização, para fins didáticos, do objeto 'table' (dataframe)
 #no ambiente Plots
 
@@ -878,18 +870,18 @@ plt.figure(figsize=(8, 3))
 plt.text(0.1, 0.1, tabela, {'family': 'monospace', 'size': 15})
 plt.axis('off')
 plt.show()
-#%%
+
 # In[4.9]: Eficiência global do modelo propriamente dita
 
 # Transformando o dataframe 'table' para 'array', para que seja possível
 #estabelecer o atributo 'diagonal'
 table = table.to_numpy()
 table
-#%%
+
 # Eficiência global do modelo
 acuracia = table.diagonal().sum()/table.sum()
 acuracia
-#%%
+
 # In[4.10]: Plotagens das probabilidades
 
 # Plotagem das smooth probability lines para a variável 'dist'
@@ -927,7 +919,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(loc='center left', fontsize=14)
 plt.show()
-#%%
+
 # In[4.11]: Plotagens das probabilidades
 
 # Plotagem das smooth probability lines para a variável 'sem'
@@ -965,7 +957,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(loc='upper center', fontsize=14)
 plt.show()
-#%%
+
 # In[4.12]: Plotagem tridimensional para cada probabilidade de ocorrência de
 #cada categoria da variável dependente
 
@@ -997,7 +989,7 @@ plot_figure.update_layout(scene = dict(
                         zaxis_title='não chegou atrasado'))
 
 plot_figure.show()
-#%%
+
 # In[4.13]: Plotagem tridimensional para cada probabilidade de ocorrência de
 #cada categoria da variável dependente
 
@@ -1029,7 +1021,7 @@ plot_figure.update_layout(scene = dict(
                         zaxis_title='chegou atrasado à primeira aula'))
 
 plot_figure.show()
-#%%
+
 # In[4.14]: Plotagem tridimensional para cada probabilidade de ocorrência de
 #cada categoria da variável dependente
 
@@ -1061,7 +1053,7 @@ plot_figure.update_layout(scene = dict(
                         zaxis_title='chegou atrasado à segunda aula'))
 
 plot_figure.show()
-#%%
+
 # In[4.15]: Visualização das sigmoides tridimensionais em um único gráfico
 
 pio.renderers.default = 'browser'
@@ -1111,5 +1103,5 @@ plot_figure.update_layout(
     )
 
 plot_figure.show()
-#%%
+
 ################################## FIM ######################################

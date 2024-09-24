@@ -1,74 +1,35 @@
-df_saeb_rend['codigo'] = df_saeb_rend['codigo'].astype('str')
+# MODELO APENAS COM ENDIVIDAMENTO
+
+modelo_auxiliar1 = sm.OLS.from_formula('retorno ~ endividamento',
+                                       df_empresas).fit()
+
+# Parâmetros do 'modelo_auxiliar1'
+modelo_auxiliar1.summary()
 
 #%%
-# Teste de Breusch-Pagan (Cálculo Manual) - REZA!
+# MODELO SEM O ENDIVIDAMENTO
 
-df_saeb_rend['up'] = ((df_saeb_rend['residuos'])**2)/\
-    (((df_saeb_rend['residuos'])**2).sum()/25530)
-    
-modelo_aux = sm.OLS.from_formula('up ~ fitted',
-                                 df_saeb_rend).fit()
+modelo_auxiliar2 = sm.OLS.from_formula('retorno ~ disclosure + ativos +\
+                                       liquidez', df_empresas).fit()
 
-modelo_aux.summary()
+# Parâmetros do 'modelo_auxiliar2'
+modelo_auxiliar2.summary()
 
-from statsmodels.stats.anova import anova_lm
-anova_table = anova_lm(modelo_aux, typ=2)
-anova_table
-
-SQReg = anova_table.sum_sq.iloc[0]/2
-SQReg
-
-p_value = stats.chi2.pdf(SQReg, 1)*2
-p_value
 
 #%%
-# Teste de Breusch-Pagan com o modelo com dummies
+# MODELO SEM O DISCLOSURE (MODELO FINAL LINEAR)
 
-teste_bp = breusch_pagan_test(modelo_saeb_dummies_uf) #criação do objeto 'teste_bp'
-chisq, p = teste_bp #definição dos elementos contidos no objeto 'teste_bp'
-alpha = 0.05 #nível de significância
-if p > alpha:
-    print('Não se rejeita H0 - Ausência de Heterocedasticidade')
-else:
-	print('Rejeita-se H0 - Existência de Heterocedasticidade')
+modelo_auxiliar3 = sm.OLS.from_formula('retorno ~ ativos +\
+                                       liquidez', df_empresas).fit()
+
+# Parâmetros do 'modelo_auxiliar3'
+modelo_auxiliar3.summary()
 
 #%%
-# Dummização da variável 'uf' com n dummies
+# MODELO APENAS COM DISCLOSURE
 
-df_saeb_rend_dummies = pd.get_dummies(df_saeb_rend, columns=['uf'],
-                                      dtype=int,
-                                      drop_first=False)
+modelo_auxiliar4 = sm.OLS.from_formula('retorno ~ disclosure',
+                                       df_empresas).fit()
 
-df_saeb_rend_dummies
-
-#%%
-lista_colunas = list(df_saeb_rend_dummies.drop(columns=['municipio',
-                                                        'codigo',
-                                                        'escola',
-                                                        'rede',
-                                                        'saeb',
-                                                        'fitted',
-                                                        'residuos','up',
-                                                        'uf_BA']).columns)
-formula_dummies_modelo = ' + '.join(lista_colunas)
-formula_dummies_modelo = "saeb ~ " + formula_dummies_modelo
-
-#%%
-# Estimação do novo modelo 'modelo_saeb_dummies_uf2'
-
-modelo_saeb_dummies_uf2 = sm.OLS.from_formula(formula_dummies_modelo,
-                                               df_saeb_rend_dummies).fit()
-
-# Parâmetros do modelo 'modelo_saeb_dummies_uf2'
-modelo_saeb_dummies_uf2.summary()
-
-#%%
-# Teste de Breusch-Pagan no novo modelo
-
-teste_bp = breusch_pagan_test(modelo_saeb_dummies_uf2) #criação do objeto 'teste_bp'
-chisq, p = teste_bp #definição dos elementos contidos no objeto 'teste_bp'
-alpha = 0.05 #nível de significância
-if p > alpha:
-    print('Não se rejeita H0 - Ausência de Heterocedasticidade')
-else:
-	print('Rejeita-se H0 - Existência de Heterocedasticidade')
+# Parâmetros do 'modelo_auxiliar4'
+modelo_auxiliar4.summary()

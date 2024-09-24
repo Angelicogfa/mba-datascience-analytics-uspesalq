@@ -7,7 +7,7 @@
 # coding: utf-8
 
 # In[0.1]: Instalação dos pacotes
-#%% Install
+
 !pip install pandas
 !pip install numpy
 !pip install -U seaborn
@@ -22,7 +22,7 @@
 !pip install statstests
 
 # In[0.2]: Importação dos pacotes
-#%% Import
+
 import pandas as pd # manipulação de dados em formato de dataframe
 import numpy as np # operações matemáticas
 import seaborn as sns # visualização gráfica
@@ -32,7 +32,7 @@ from scipy.stats import pearsonr # correlações de Pearson
 import statsmodels.api as sm # estimação de modelos
 from statsmodels.iolib.summary2 import summary_col # comparação entre modelos
 from sklearn.preprocessing import LabelEncoder # transformação de dados
-#from playsound import playsound # reprodução de sons
+from playsound import playsound # reprodução de sons
 import pingouin as pg # outro modo para obtenção de matrizes de correlações
 import emojis # inserção de emojis em gráficos
 from statstests.process import stepwise # procedimento Stepwise
@@ -41,7 +41,7 @@ from scipy.stats import boxcox # transformação de Box-Cox
 from scipy.stats import norm # para plotagem da curva normal
 from scipy import stats # utilizado na definição da função 'breusch_pagan_test'
 
-#%%
+
 # In[EXEMPLO 1]:
 #############################################################################
 #                          REGRESSÃO LINEAR SIMPLES                         #
@@ -57,7 +57,6 @@ df_tempodist.info()
 # Estatísticas univariadas
 df_tempodist.describe()
 
-#%%
 # In[1.1]: Gráfico de dispersão com o ajuste linear (fitted values de um modelo
 #de regressão) que se adequa às observações: função 'regplot' do pacote 'seaborn'
 
@@ -73,9 +72,8 @@ plt.yticks(fontsize=18)
 plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values'], fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.2]: Gráfico de dispersão interativo (figura 'EXEMPLO1.html' salva na
 #pasta do curso)
 
@@ -128,7 +126,7 @@ fig.write_html('EXEMPLO1.html')
 # Abrir o arquivo HTML no navegador
 import webbrowser
 webbrowser.open('EXEMPLO1.html')
-#%%
+
 # In[1.3]: Estimação do modelo de regressão linear simples
 
 # Estimação do modelo
@@ -137,92 +135,6 @@ modelo = sm.OLS.from_formula('tempo ~ distancia', df_tempodist).fit()
 # Observação dos parâmetros resultantes da estimação
 modelo.summary()
 
-#%%
-# Somatória dos quadrados do modelo (SQM)
-print(modelo.ess)
-
-# Somatória dos quadrados dos resíduos (SQR)
-print(modelo.ssr)
-
-# A estatística F é uma medida utilizada em análises de regressão para testar a significância global do modelo. Ela compara a variabilidade explicada pelo modelo com a variabilidade não explicada, ou seja, a diferença entre a variabilidade total dos dados e a variabilidade explicada pelo modelo.
-
-# A estatística F é calculada dividindo a variabilidade explicada pelo número de regressores (variáveis independentes) pelo erro médio quadrático (MSE), que é uma medida da variabilidade não explicada. Quanto maior o valor da estatística F, maior é a evidência de que o modelo é significativo.
-
-# A estatística F é aplicada para testar a hipótese nula de que todos os coeficientes de regressão são iguais a zero, o que significa que o modelo não é significativo. Se o valor da estatística F for maior do que um determinado valor crítico, geralmente obtido a partir de tabelas estatísticas, a hipótese nula é rejeitada e concluímos que o modelo é significativo.
-
-# A estatística F é comumente utilizada em análises de regressão para avaliar a qualidade do modelo e determinar se as variáveis independentes têm um efeito significativo na variável dependente. Ela também pode ser usada para comparar diferentes modelos de regressão e selecionar o modelo mais adequado.
-
-# Principais casos de uso da estatística F:
-
-# Avaliar a significância global do modelo de regressão.
-# Comparar diferentes modelos de regressão e selecionar o mais adequado.
-# Testar a hipótese de que todas as variáveis independentes têm coeficientes iguais a zero.
-# Determinar se as variáveis independentes têm um efeito significativo na variável dependente.
-# É importante ressaltar que a interpretação da estatística F depende do contexto do problema e das suposições subjacentes ao modelo de regressão. Portanto, é fundamental entender bem o significado e as limitações dessa estatística ao aplicá-la em análises estatísticas.
-
-#%% Analise das estatísticas do modelo
-# Número de observações
-n = modelo.nobs
-
-# Graus de liberdade do modelo
-df_modelo = modelo.df_model
-
-# Graus de liberdade dos resíduos
-df_residuos = modelo.df_resid
-
-# Estatística F
-F = (modelo.ess/df_modelo)/(modelo.ssr/df_residuos)
-F
-#%% Anova (Analysis of Variance) é uma técnica estatística utilizada para analisar a variabilidade dos dados e testar a significância dos fatores em um modelo. A Anova é frequentemente aplicada em análises de regressão para avaliar a importância das variáveis independentes na explicação da variabilidade da variável dependente.
-from statsmodels.stats.anova import anova_lm
-
-anova_lm(modelo)
-
-#%% Definiçao do p-value associado ao F calculado
-from scipy.stats import f
-
-1 - f.cdf(F, df_modelo, df_residuos)
-# portanto, há modelo.
-
-#%% Gerando gráfico F hipotetico
-
-df1 = 10 # graus de liberdade do numerador (modelo)
-df2 = 80 # graus de liberdade do denominador (resíduos)
-
-f_values = np.random.f(df1, df2, 100_000)
-
-plt.hist(f_values, bins=100, edgecolor='lightgray', color='navy', alpha=0.7)
-
-#%%  Voltando ao nosso modelo
-# Calculo do F Critico
-f.ppf(0.95, df_modelo, df_residuos)
-
-#%% Distribuição t de Studenty Hipotetica
-df = 40
-t_values = np.random.standard_t(df, 100_000)
-plt.hist(t_values, bins=100, edgecolor='lightgray', color='navy', alpha=0.7)
-
-
-#%% Calculo da estatistica t do beta da variavel 'distancia' para o nosso
-# exemplo 
-# t é a raiz quadrada de F (regressão simples)
-t = np.sqrt(F)
-t
-
-# calculo do p-value da estatistica t
-from scipy.stats import t as t_student
-t_student.sf(t, df_residuos)*2
-
-#%% Gráfico da distribuição t hipotética
-x = np.arange(-4, 4, 0.0001)
-
-plt.plot(x, t_student.pdf(x, 2), label='df=2', color='yellow')
-plt.plot(x, t_student.pdf(x, 8), label='df=8', color='green')
-plt.plot(x, t_student.pdf(x, 20), label='df=20', color='darkorchid')
-plt.legend()
-plt.show()
-
-#%%
 # In[1.4]: Salvando fitted values (variável yhat) e residuals (variável erro)
 #no dataset
 
@@ -230,10 +142,6 @@ df_tempodist['yhat'] = modelo.fittedvalues
 df_tempodist['erro'] = modelo.resid
 df_tempodist
 
-#%%
-
-
-#%%
 # In[1.5]: Gráfico didático para visualizar o conceito de R²
 
 plt.figure(figsize=(15,10))
@@ -259,7 +167,6 @@ for i in range(len(x)-1):
                fontsize=22, loc='upper left')
 plt.show()
 
-#%%
 # In[1.6]: Cálculo manual do R²
 
 R2 = ((df_tempodist['yhat']-
@@ -269,7 +176,6 @@ R2 = ((df_tempodist['yhat']-
 
 round(R2,4)
 
-#%%
 # In[1.7]: Coeficiente de ajuste (R²) é a correlação ao quadrado
 
 # Correlação de Pearson
@@ -281,7 +187,6 @@ df_tempodist[['tempo','distancia']].corr()
 # R² de maneira direta
 modelo.rsquared
 
-#%%
 # In[1.8]: Modelo auxiliar para mostrar R² igual a 100% (para fins didáticos)
 
 # Estimação do modelo com yhat como variável dependente resultará em um modelo
@@ -291,7 +196,6 @@ modelo_auxiliar = sm.OLS.from_formula('yhat ~ distancia', df_tempodist).fit()
 # Parâmetros resultantes da estimação deste modelo didático
 modelo_auxiliar.summary()
 
-#%%
 # In[1.9]:Gráfico mostrando o perfect fit
 
 plt.figure(figsize=(15,10))
@@ -308,9 +212,8 @@ plt.yticks(fontsize=18)
 plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(loc='upper left', fontsize=24)
-plt.show()
+plt.show
 
-#%%
 # In[1.10]:Gráfico mostrando o perfect fit com figura .JPG e som .MP3
 
 import urllib.request
@@ -368,9 +271,8 @@ plt.show()
 # Reproduz um som padrão (arquivo na pasta do curso)
 # Aqui você deve colocar a URL da pasta em que se encontra o arquivo 'sound.mp3',
 #com duas barras!
-#playsound('C:\\MBA DSA USP Esalq\\Análise de Regressão Simples e Múltipla\\sound.mp3')
+playsound('C:\\MBA DSA USP Esalq\\Análise de Regressão Simples e Múltipla\\sound.mp3')
 
-#%%
 # In[1.11]: Voltando ao nosso modelo original
 
 # Gráfico com intervalo de confiança de 90%
@@ -388,9 +290,8 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '90% IC'],
            fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.12]: Gráfico com intervalo de confiança de 95%
 
 plt.figure(figsize=(15,10))
@@ -406,9 +307,8 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '95% IC'],
            fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.13]: Gráfico com intervalo de confiança de 99%
 
 plt.figure(figsize=(15,10))
@@ -424,9 +324,8 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '99% IC'],
            fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.14]: Gráfico com intervalo de confiança de 99,99999%
 
 plt.figure(figsize=(15,10))
@@ -442,9 +341,8 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '99,99999% IC'],
            fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.15]: Calculando os intervalos de confiança
 
 # Nível de significância de 10% / Nível de confiança de 90%
@@ -459,7 +357,6 @@ modelo.conf_int(alpha=0.01)
 # Nível de significância de 0,00001% / Nível de confiança de 99,99999%
 modelo.conf_int(alpha=0.0000001)
 
-#%%
 # In[1.16]: Fazendo predições em modelos OLS
 # Ex.: Qual seria o tempo gasto, em média, para percorrer a distância de 25km?
 
@@ -467,13 +364,12 @@ modelo.conf_int(alpha=0.0000001)
 5.8784 + 1.4189*(25)
 
 # Cálculo utilizando os próprios parâmetros estimados do modelo
-modelo.params.iloc[0] + modelo.params.iloc[1]*(25)
+modelo.params[0] + modelo.params[1]*(25)
 
 # Maneira direta utilizando a função 'DataFrame' do pacote 'pandas' dentro
 #da função 'predict'
 modelo.predict(pd.DataFrame({'distancia':[25]}))
 
-#%%
 # In[1.17]: Nova modelagem para o mesmo exemplo, com novo dataset que
 #contém replicações
 
@@ -484,20 +380,17 @@ df_replicado
 
 # In[1.18]: Estimação do modelo com valores replicados
 
-#%%
 modelo_replicado = sm.OLS.from_formula('tempo ~ distancia',
                                        df_replicado).fit()
 
 # Parâmetros do 'modelo_replicado'
 modelo_replicado.summary()
 
-#%%
 # In[1.19]: Calculando os novos intervalos de confiança
 
 # Nível de significância de 5% / Nível de confiança de 95%
 modelo_replicado.conf_int(alpha=0.05)
 
-#%%
 # In[1.20]: Plotando o novo gráfico com intervalo de confiança de 95%
 # Note o estreitamento da amplitude dos intervalos de confiança!
 
@@ -514,9 +407,8 @@ plt.xlim(0, 35)
 plt.ylim(0, 60)
 plt.legend(['Valores Reais', 'Fitted Values', '95% IC'],
            fontsize=24, loc='upper left')
-plt.show()
+plt.show
 
-#%%
 # In[1.21]: PROCEDIMENTO ERRADO: ELIMINAR O INTERCEPTO QUANDO ESTE NÃO SE
 #MOSTRAR ESTATISTICAMENTE SIGNIFICANTE
 
@@ -525,7 +417,6 @@ modelo_errado = sm.OLS.from_formula('tempo ~ 0 + distancia', df_tempodist).fit()
 # Parâmetros do 'modelo_errado'
 modelo_errado.summary()
 
-#%%
 # In[1.22]: Comparando os parâmetros do modelo inicial (objeto 'modelo')
 #com o 'modelo_errado' pela função 'summary_col' do pacote
 #'statsmodels.iolib.summary2'
@@ -540,7 +431,6 @@ summary_col([modelo, modelo_errado],
                 'N':lambda x: "{0:d}".format(int(x.nobs))
         })
 
-#%%
 # In[1.23]: Gráfico didático para visualizar o viés decorrente de se eliminar
 #erroneamente o intercepto em modelos regressivos
 
@@ -560,7 +450,7 @@ plt.ylim(0, 60)
 plt.legend(['Valores Observados','Fitted Values OLS',
             'Sem Intercepto'], fontsize=9)
 plt.show()
-#%%
+
 # In[1.24]: DÚVIDA: Qual estimação devo escolher? (com figura proveninente de URL)
 
 import urllib.request
@@ -602,7 +492,6 @@ plt.figimage(imagem_redimensionada, posicao_x, posicao_y, zorder=1)
 
 plt.show()
 
-#%%
 # In[1.25]: DECISÃO: DEVO ESCOLHER O MODELO COM INTERCEPTO!
 
 # Definição das URLs das imagems
@@ -650,7 +539,7 @@ plt.figimage(imagem_redimensionada1, posicao_x1, posicao_y1, zorder=1)
 plt.figimage(imagem_redimensionada2, posicao_x2, posicao_y2, zorder=1)
 
 plt.show()
-#%%
+
 
 # In[EXEMPLO 2]:
 #############################################################################
@@ -666,7 +555,7 @@ df_paises.info()
 
 #Estatísticas univariadas
 df_paises.describe()
-#%%
+
 # In[2.1]: Gráfico 3D com scatter gerado em HTML e aberto no browser
 #(figura 'EXEMPLO2_scatter3D.html' salva na pasta do curso)
 
@@ -717,7 +606,6 @@ plot_figure.write_html('EXEMPLO2_scatter3D.html')
 # Abre o arquivo HTML no browser
 import webbrowser
 webbrowser.open('EXEMPLO2_scatter3D.html')
-#%%
 
 # In[2.2]: Matriz de correlações
 
@@ -745,7 +633,6 @@ plt.show()
 # Greens
 # Reds
 
-#%%
 # In[2.3]: Diagrama interessante (grafo) que mostra a inter-relação entre as
 #variáveis e a magnitude das correlações entre elas
 
@@ -808,7 +695,6 @@ cbar = plt.colorbar(smp, ax=ax, label='Correlação')
 # Exibição do gráfico
 plt.show()
 
-#%%
 # In[2.4]: Matriz de correlações mais elaborada, com uso da função 'rcorr' do
 #pacote 'pingouin'
 
@@ -820,7 +706,6 @@ correlation_matrix2 = pg.rcorr(df_paises, method='pearson',
                                            0.05: '**',
                                            0.10: '*'})
 correlation_matrix2
-#%%
 
 # In[2.5]: Gráfico com distribuições das variáveis, scatters, valores das
 #correlações e respectivas significâncias estatísticas
@@ -845,7 +730,6 @@ for ax in graph.axes.flat:
     ax.set_ylabel(ax.get_ylabel(), fontsize=14)
 plt.show()
 
-#%%
 # In[2.6]: Estimação de um modelo de regressão múltipla com as variáveis do
 #dataframe 'df_paises'
 
@@ -855,14 +739,12 @@ modelo_paises = sm.OLS.from_formula("cpi ~ idade + horas", df_paises).fit()
 # Parâmetros do 'modelo_paises'
 modelo_paises.summary()
 
-#%%
 # Cálculo do R² ajustado (slide 31 da apostila)
 r2_ajust = 1-((len(df_paises.index)-1)/(len(df_paises.index)-\
                                           modelo_paises.params.count()))*\
     (1-modelo_paises.rsquared)
 r2_ajust # modo direto: modelo_paises.rsquared_adj
 
-#%%
 # In[2.7]: Salvando os fitted values na base de dados
 
 df_paises['cpifit'] = modelo_paises.fittedvalues
@@ -926,7 +808,7 @@ plot_figure.write_html('EXEMPLO2_scatter3D_fitted.html')
 import webbrowser
 webbrowser.open('EXEMPLO2_scatter3D_fitted.html')
 
-#%%
+
 # In[EXEMPLO 3]:
 #############################################################################
 #         REGRESSÃO COM UMA VARIÁVEL EXPLICATIVA (X) QUALITATIVA            #
@@ -942,11 +824,9 @@ df_corrupcao.info()
 # Estatísticas univariadas
 df_corrupcao.describe()
 
-#%%
 # Estatísticas univariadas por região
 df_corrupcao.groupby('regiao').describe()
 
-#%%
 # In[3.1]: Tabela de frequências da variável 'regiao'
 
 # Função 'value_counts' do pacote 'pandas' sem e com o argumento 'normalize'
@@ -955,7 +835,6 @@ contagem = df_corrupcao['regiao'].value_counts(dropna=False)
 percent = df_corrupcao['regiao'].value_counts(dropna=False, normalize=True)
 pd.concat([contagem, percent], axis=1, keys=['contagem', '%'], sort=False)
 
-#%%
 # In[3.2]: Conversão dos dados de 'regiao' para dados numéricos, a fim de
 #se mostrar a estimação de modelo com o problema da ponderação arbitrária
 
@@ -964,13 +843,11 @@ df_corrupcao['regiao_numerico'] = label_encoder.fit_transform(df_corrupcao['regi
 df_corrupcao['regiao_numerico'] = df_corrupcao['regiao_numerico'] + 1
 df_corrupcao.head(10)
 
-#%%
 # A nova variável 'regiao_numerico' é quantitativa (ERRO!), fato que
 #caracteriza a ponderação arbitrária!
 df_corrupcao['regiao_numerico'].info()
 df_corrupcao.describe()
 
-#%%
 # In[3.3]: Modelando com a variável preditora numérica, resultando na
 #estimação ERRADA dos parâmetros
 # PONDERAÇÃO ARBITRÁRIA!
@@ -980,7 +857,6 @@ modelo_corrupcao_errado = sm.OLS.from_formula("cpi ~ regiao_numerico",
 # Parâmetros do 'modelo_corrupcao_errado'
 modelo_corrupcao_errado.summary()
 
-#%%
 # In[3.4]: Plotando os fitted values do 'modelo_corrupcao_errado' considerando,
 #PROPOSITALMENTE, a ponderação arbitrária, ou seja, assumindo que as regiões
 #representam valores numéricos (América do Sul = 1; Ásia = 2; EUA e Canadá = 3;
@@ -1023,7 +899,6 @@ label_point(x = df_corrupcao['regiao_numerico'],
             ax = plt.gca())
 plt.show()
 
-#%%
 # In[3.5]: Dummizando a variável 'regiao'. O código abaixo automaticamente fará:
 # a) o estabelecimento de dummies que representarão cada uma das regiões do dataset;
 # b) removerá a variável original a partir da qual houve a dummização;
@@ -1035,12 +910,11 @@ df_corrupcao_dummies = pd.get_dummies(df_corrupcao, columns=['regiao'],
                                       drop_first=True)
 
 df_corrupcao_dummies
-#%%
+
 # A variável 'regiao' estava inicialmente definida como 'object' no dataframe
 #original 'df_corrupcao'
 df_corrupcao['regiao'].info()
 
-#%%
 # Este procedimento de dummização também poderia ter sido realizado em uma
 #variável do tipo 'category' ou 'string'!
 
@@ -1055,8 +929,6 @@ modelo_corrupcao_dummies = sm.OLS.from_formula("cpi ~ regiao_Asia + \
 # Parâmetros do 'modelo_corrupcao_dummies'
 modelo_corrupcao_dummies.summary()
 
-
-#%%
 # In[3.7]: Outro método de estimação (sugestão de uso para muitas dummies no dataset)
 
 # Definição da fórmula utilizada no modelo
@@ -1072,14 +944,13 @@ modelo_corrupcao_dummies = sm.OLS.from_formula(formula_dummies_modelo,
 
 # Parâmetros do 'modelo_corrupcao_dummies'
 modelo_corrupcao_dummies.summary()
-#%%
 
 # In[3.8]: Plotando o 'modelo_corrupcao_dummies' de forma interpolada
 
 # Fitted values do 'modelo_corrupcao_dummies' no dataset 'df_corrupcao_dummies'
 df_corrupcao_dummies['fitted'] = modelo_corrupcao_dummies.fittedvalues
 df_corrupcao_dummies
-#%%
+
 # In[3.9]: Gráfico propriamente dito
 
 from scipy import interpolate
@@ -1127,7 +998,7 @@ label_point(x=df_corrupcao_dummies['regiao_numerico'],
             val=df_corrupcao_dummies['pais'],
             ax=plt.gca())
 plt.show()
-#%%
+
 # In[3.10]: Gráfico gerado em HTML e aberto no browser, com interação
 #(figura 'EXEMPLO3.html' salva na pasta do curso)
 
@@ -1205,28 +1076,6 @@ import webbrowser
 webbrowser.open('EXEMPLO3.html')
 
 
-#%% Mudando o valor de referencia
-df_corrupcao_dummies = pd.get_dummies(df_corrupcao, columns=['regiao'],
-                                      dtype=int)
-
-df_corrupcao_dummies
-#%% Categoria de referência: Oceania
-# Definição da fórmula utilizada no modelo
-lista_colunas = list(df_corrupcao_dummies.drop(columns=['cpi','pais',
-                                                        'regiao_numerico', 'regiao_Oceania']).columns)
-formula_dummies_modelo = ' + '.join(lista_colunas)
-formula_dummies_modelo = "cpi ~ " + formula_dummies_modelo
-print("Fórmula utilizada: ",formula_dummies_modelo)
-
-
-# Estimação
-modelo_corrupcao_dummies = sm.OLS.from_formula(formula_dummies_modelo,
-                                               df_corrupcao_dummies).fit()
-
-# Parâmetros do 'modelo_corrupcao_dummies'
-modelo_corrupcao_dummies.summary()
-
-#%%
 # In[EXEMPLO 4]:
 #############################################################################
 #            REGRESSÃO NÃO LINEAR E TRANSFORMAÇÃO DE BOX-COX                #
@@ -1235,13 +1084,13 @@ modelo_corrupcao_dummies.summary()
 
 df_bebes = pd.read_csv('bebes.csv', delimiter=',')
 df_bebes
-#%%
+
 # Características das variáveis do dataset
 df_bebes.info()
 
 # Estatísticas univariadas
 df_bebes.describe()
-#%%
+
 # In[4.1]: Gráfico de dispersão
 
 plt.figure(figsize=(15,10))
@@ -1254,7 +1103,7 @@ plt.legend(loc='lower right', fontsize=17)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
-#%%
+
 # In[4.2]: Gráfico de dispersão com emojis 01
 
 plt.figure(figsize=(15, 10))
@@ -1268,7 +1117,7 @@ plt.legend(loc='lower right', fontsize=17)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
-#%%
+
 # In[4.3]: Gráfico de dispersão com emojis 02
 
 emojis_coracao = ['❤️'] * len(df_bebes)
@@ -1285,13 +1134,13 @@ plt.ylabel('Comprimento em cm', fontsize=17)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
-#%%
+
 # In[4.4]: Estimação de um modelo OLS linear
 modelo_linear = sm.OLS.from_formula('comprimento ~ idade', df_bebes).fit()
 
 # Parâmetros do 'modelo_linear'
 modelo_linear.summary()
-#%%
+
 # In[4.5]: Gráfico de dispersão com ajustes (fits) linear e não linear
 # com argumento 'lowess=True' (locally weighted scatterplot smoothing)
 
@@ -1311,7 +1160,7 @@ plt.legend(loc='lower right', fontsize=17)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
-#%%
+
 # In[4.6]: Teste de verificação da aderência dos resíduos à normalidade
 
 # Teste de Shapiro-Wilk (n < 30)
@@ -1335,7 +1184,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[4.7]: Histograma dos resíduos do modelo OLS linear
 
 plt.figure(figsize=(15,10))
@@ -1349,62 +1198,8 @@ plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
 
-#%% Diferença entre padronização e normalização
-
-## Padronização (não modifica a distribuição dos dados) - NÃO ALTERAÇÃO A DISTRIBUIÇÃO
-## Padronização não é Normalização
-
-from scipy.stats import zscore
-df_bebes['z_comprimento'] = zscore(df_bebes['comprimento'])
-df_bebes['z_comprimento'].describe()
-
-#%% Histograma do dado real e padronizado
-
-plt.figure(figsize=(15,10))
-hist1 = sns.histplot(data=df_bebes['comprimento'], kde=True, bins=25, color='aqua', alpha=0.4, edgecolor='silver', line_kws={'linewidth': 3})
-hist1.get_lines()[0].set_color('navy')
-
-plt.xlabel('Variavel', fontsize=20)
-plt.ylabel('Frequência', fontsize=20)
-plt.xticks(fontsize=17)
-plt.yticks(fontsize=17)
-plt.show()
-
-plt.figure(figsize=(15,10))
-hist1 = sns.histplot(data=df_bebes['z_comprimento'], kde=True, bins=25, color='aqua', alpha=0.4, edgecolor='silver', line_kws={'linewidth': 3})
-hist1.get_lines()[0].set_color('navy')
-
-plt.xlabel('Variavel', fontsize=20)
-plt.ylabel('Frequência', fontsize=20)
-plt.xticks(fontsize=17)
-plt.yticks(fontsize=17)
-plt.show()
-
-#%% Aplicação do teste de shapiro-francia da variavel comprimento
-teste_sf = shapiro_francia(df_bebes['comprimento']) #criação do objeto 'teste_sf'
-teste_sf = teste_sf.items() #retorna o grupo de pares de valores-chave no dicionário
-method, statistics_W, statistics_z, p = teste_sf #definição dos elementos da lista (tupla)
-print('Statistics W=%.5f, p-value=%.6f' % (statistics_W[1], p[1]))
-alpha = 0.05 #nível de significância
-if p[1] > alpha:
-    print('Não se rejeita H0 - Distribuição aderente à normalidade')
-else:
-    print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-
-#%% Aplicação do teste de shapiro-francia da variavel z_comprimento
-teste_sf = shapiro_francia(df_bebes['z_comprimento']) #criação do objeto 'teste_sf'
-teste_sf = teste_sf.items() #retorna o grupo de pares de valores-chave no dicionário
-method, statistics_W, statistics_z, p = teste_sf #definição dos elementos da lista (tupla)
-print('Statistics W=%.5f, p-value=%.6f' % (statistics_W[1], p[1]))
-alpha = 0.05 #nível de significância
-if p[1] > alpha:
-    print('Não se rejeita H0 - Distribuição aderente à normalidade')
-else:
-    print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-
-#%%
 # In[4.8]: Transformação de Box-Cox
- 
+
 # Para o cálculo do lambda de Box-Cox
 from scipy.stats import boxcox
 
@@ -1417,12 +1212,12 @@ yast, lmbda = boxcox(df_bebes['comprimento'])
 df_bebes['bc_comprimento'] = yast
 
 df_bebes
-#%%
+
 # Verificação do cálculo, apenas para fins didáticos
 df_bebes['bc_comprimento2'] = ((df_bebes['comprimento']**lmbda)-1)/lmbda
 
 df_bebes
-#%%
+
 del df_bebes['bc_comprimento2']
 
 # In[4.9]: Estimando um novo modelo OLS com variável dependente
@@ -1432,13 +1227,13 @@ modelo_bc = sm.OLS.from_formula('bc_comprimento ~ idade', df_bebes).fit()
 
 # Parâmetros do 'modelo_bc'
 modelo_bc.summary()
-#%%
+
 # In[4.10]: Comparando os parâmetros do 'modelo_linear' com os do 'modelo_bc'
 
 # CUIDADO!!! OS PARÂMETROS NÃO SÃO DIRETAMENTE COMPARÁVEIS!
 
 summary_col([modelo_linear, modelo_bc])
-#%%
+
 # Outro modo mais completo também pela função 'summary_col'
 summary_col([modelo_linear, modelo_bc],
             model_names=["MODELO LINEAR","MODELO BOX-COX"],
@@ -1446,12 +1241,12 @@ summary_col([modelo_linear, modelo_bc],
             info_dict = {
                 'N':lambda x: "{0:d}".format(int(x.nobs))
         })
-#%%
+
 # Repare que há um salto na qualidade do ajuste para o modelo não linear (R²)
 
 pd.DataFrame({'R² OLS':[round(modelo_linear.rsquared,4)],
               'R² Box-Cox':[round(modelo_bc.rsquared,4)]})
-#%%
+
 # In[4.11]: Verificando a normalidade dos resíduos do 'modelo_bc'
 
 # Teste de Shapiro-Francia: interpretação
@@ -1464,7 +1259,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[4.12]: Histograma dos resíduos do modelo_bc
 
 plt.figure(figsize=(15,10))
@@ -1477,7 +1272,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[4.13]: Fazendo predições com os modelos OLS linear e Box-Cox
 # Qual é o comprimento esperado de um bebê com 52 semanas de vida?
 
@@ -1486,18 +1281,18 @@ modelo_linear.predict(pd.DataFrame({'idade':[52]}))
 
 # Modelo Não Linear (Box-Cox):
 modelo_bc.predict(pd.DataFrame({'idade':[52]}))
-#%%
+
 # Não podemos nos esquecer de fazer o cálculo inverso para a obtenção do fitted
 #value de Y (variável 'comprimento')
 (54251.109775 * lmbda + 1) ** (1 / lmbda)
-#%%
+
 # In[4.14]: Salvando os fitted values dos dois modelos (modelo_linear e modelo_bc)
 #no dataset 'bebes'
 
 df_bebes['yhat_linear'] = modelo_linear.fittedvalues
 df_bebes['yhat_modelo_bc'] = (modelo_bc.fittedvalues * lmbda + 1) ** (1 / lmbda)
 df_bebes
-#%%
+
 # In[4.15]: Gráfico de dispersão com ajustes dos modelos OLS linear e Box-Cox
 
 plt.figure(figsize=(15,10))
@@ -1521,7 +1316,7 @@ plt.legend(loc='lower right', fontsize=17)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
-#%%
+
 # In[4.16]: Gráfico de dispersão com ajustes dos modelos OLS linear e Box-Cox,
 #com interação (figura 'EXEMPLO4.html' salva na pasta do curso)
 
@@ -1583,7 +1378,7 @@ fig.write_html("EXEMPLO4.html")
 import webbrowser
 webbrowser.open('EXEMPLO4.html')
 
-#%%
+
 # In[EXEMPLO 5]:
 #############################################################################
 #                        REGRESSÃO NÃO LINEAR MÚLTIPLA                      #
@@ -1592,18 +1387,18 @@ webbrowser.open('EXEMPLO4.html')
 
 df_empresas = pd.read_csv('empresas.csv', delimiter=',')
 df_empresas
-#%%
+
 # Características das variáveis do dataset
 df_empresas.info()
 
 # Estatísticas univariadas
 df_empresas.describe()
-#%%
+
 # In[5.1]: Matriz de correlações
 
 correlation_matrix = df_empresas.iloc[:,1:6].corr()
 correlation_matrix
-#%%
+
 # Mapa de calor com as correlações entre todas as variáveis quantitativas
 plt.figure(figsize=(15, 10))
 heatmap = sns.heatmap(correlation_matrix, annot=True, fmt=".4f",
@@ -1614,7 +1409,7 @@ heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=15)
 cbar = heatmap.collections[0].colorbar
 cbar.ax.tick_params(labelsize=17)
 plt.show()
-#%%
+
 # In[5.2]: Matriz de correlações
 # Maneira mais elaborada pela função 'rcorr' do pacote 'pingouin'
 
@@ -1626,7 +1421,7 @@ correlation_matrix2 = pg.rcorr(df_empresas, method='pearson',
                                           0.05: '**',
                                           0.10: '*'})
 correlation_matrix2
-#%%
+
 # In[5.3]: Diagrama interessante (grafo) que mostra a inter-relação entre as
 #variáveis e a magnitude das correlações entre elas
 
@@ -1699,7 +1494,7 @@ cbar.set_ticks(np.arange(round(min(correlations),0) - 0.1,
 
 # Exibição do gráfico
 plt.show()
-#%%
+
 # In[5.4]: Distribuições das variáveis, scatters, valores das correlações e
 #suas respectivas significâncias
 
@@ -1723,7 +1518,7 @@ for ax in graph.axes.flat:
     ax.set_xlabel(ax.get_xlabel(), fontsize=17)
     ax.set_ylabel(ax.get_ylabel(), fontsize=17)
 plt.show()
-#%%
+
 # In[5.5]: Estimando o Modelo de Regressão Múltipla
 modelo_empresas = sm.OLS.from_formula('retorno ~ disclosure +\
                                       endividamento + ativos +\
@@ -1732,25 +1527,6 @@ modelo_empresas = sm.OLS.from_formula('retorno ~ disclosure +\
 # Parâmetros do 'modelo_empresas'
 modelo_empresas.summary()
 
-#%% Modelo auxiliar - somente o individamento
-modelo_aux1 = sm.OLS.from_formula('retorno ~ endividamento', df_empresas).fit()
-modelo_aux1.summary()
-
-
-#%% Modelo auxiliar - sem o individamento
-modelo_aux2 = sm.OLS.from_formula('retorno ~ disclosure + ativos + liquidez', df_empresas).fit()
-modelo_aux2.summary()
-
-#%% Modelo auxiliar - sem o disclosure
-modelo_aux3 = sm.OLS.from_formula('retorno ~ ativos + liquidez', df_empresas).fit()
-modelo_aux3.summary()
-
-#%% Modelo auxiliar - somente o disclosure
-modelo_aux4 = sm.OLS.from_formula('retorno ~ disclosure', df_empresas).fit()
-modelo_aux4.summary()
-
-#%%
-# In[5.5]: Estimando o Modelo de Regressão Múltipla
 # Note que o parâmetro da variável 'endividamento' não é estatisticamente
 #significante ao nível de significância de 5% (nível de confiança de 95%).
 
@@ -1764,7 +1540,7 @@ from statstests.process import stepwise
 
 # Estimação do modelo por meio do procedimento Stepwise
 modelo_step_empresas = stepwise(modelo_empresas, pvalue_limit=0.05)
-#%%
+
 # In[5.7]: Teste de verificação da aderência dos resíduos à normalidade
 
 # Teste de Shapiro-Wilk (n < 30)
@@ -1788,7 +1564,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[5.8]: Plotando os resíduos do 'modelo_step_empresas' e acrescentando
 #uma curva normal teórica para comparação entre as distribuições
 # Kernel density estimation (KDE) - forma não-paramétrica para estimação da
@@ -1812,7 +1588,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[5.9]: Transformação de Box-Cox
 
 # Para o cálculo do lambda de Box-Cox
@@ -1833,9 +1609,9 @@ df_empresas
 # Verificação do cálculo, apenas para fins didáticos
 df_empresas['bc_retorno2'] = ((df_empresas['retorno'])**(lmbda) - 1) / (lmbda)
 df_empresas
-#%%
+
 del df_empresas['bc_retorno2']
-#%%
+
 # In[5.11]: Estimando um novo modelo múltiplo com variável dependente
 #transformada por Box-Cox
 
@@ -1845,15 +1621,14 @@ modelo_bc = sm.OLS.from_formula('bc_retorno ~ disclosure +\
 
 # Parâmetros do 'modelo_bc'
 modelo_bc.summary()
-#%%
+
 # In[5.12]: Aplicando o procedimento Stepwise no 'modelo_bc"
 
 modelo_step_empresas_bc = stepwise(modelo_bc, pvalue_limit=0.05)
-modelo_step_empresas_bc.summary()
 
 # Note que a variável 'disclosure' retorna ao modelo na forma funcional
 #não linear!
-#%%
+
 # In[5.13]: Verificando a normalidade dos resíduos do 'modelo_step_empresas_bc'
 
 # Teste de Shapiro-Francia: interpretação
@@ -1866,7 +1641,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[5.14]: Plotando os novos resíduos do 'modelo_step_empresas_bc' e
 #acrescentando uma curva normal teórica para comparação entre as distribuições
 
@@ -1888,7 +1663,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[5.15]: Resumo dos dois modelos obtidos pelo procedimento Stepwise
 #(linear e com Box-Cox)
 
@@ -1898,7 +1673,7 @@ summary_col([modelo_step_empresas, modelo_step_empresas_bc],
             info_dict = {
                 'N':lambda x: "{0:d}".format(int(x.nobs))
         })
-#%%
+
 # CUIDADO!!! OS PARÂMETROS NÃO SÃO DIRETAMENTE COMPARÁVEIS!
 
 # In[5.16]: Fazendo predições com o 'modelo_step_empresas_bc'
@@ -1910,13 +1685,13 @@ modelo_step_empresas_bc.predict(pd.DataFrame({'const':[1],
                                               'ativos':[4000],
                                               'liquidez':[14]}))
 
-#%%
+
 # In[5.17]: Não podemos nos esquecer de fazer o cálculo para a obtenção do
 #fitted value de Y (variável 'retorno')
 
 (3.702016 * lmbda + 1) ** (1 / lmbda)
 
-#%%
+
 # In[5.18]: Salvando os fitted values de 'modelo_step_empresas' e
 #'modelo_step_empresas_bc'
 
@@ -1927,7 +1702,7 @@ df_empresas['yhat_step_empresas_bc'] = (modelo_step_empresas_bc.fittedvalues
 # Visualizando os dois fitted values dos modelos 'modelo_step_empresas' e
 #'modelo_step_empresas_bc' no dataset
 df_empresas[['empresa','retorno','yhat_step_empresas','yhat_step_empresas_bc']]
-#%%
+
 # In[5.19]: Ajustes dos modelos: valores previstos (fitted values) X valores reais
 
 from scipy.optimize import curve_fit
@@ -1965,7 +1740,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show()
 
-#%%
+
 # In[EXEMPLO 6]:
 #############################################################################
 #         DIAGNÓSTICO DE MULTICOLINEARIDADE EM MODELOS DE REGRESSÃO         #
@@ -1974,18 +1749,18 @@ plt.show()
 
 df_salarios = pd.read_csv('salarios.csv', delimiter=',')
 df_salarios
-#%%
+
 # Características das variáveis do dataset
 df_salarios.info()
 
 # Estatísticas univariadas
 df_salarios.describe()
-#%%
+
 # In[6.1]: Matriz de correlações
 
 correlation_matrix = df_salarios.iloc[:,1:6].corr()
 correlation_matrix
-#%%
+
 # Mapa de calor com as correlações entre todas as variáveis quantitativas
 plt.figure(figsize=(15, 10))
 heatmap = sns.heatmap(correlation_matrix, annot=True, fmt=".3f",
@@ -1996,7 +1771,7 @@ heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=14)
 cbar = heatmap.collections[0].colorbar
 cbar.ax.tick_params(labelsize=17)
 plt.show()
-#%%
+
 # In[6.2]: CORRELAÇÃO BAIXA (variáveis 'rh1' e 'econometria1'):
 
 # Correlação entre 'rh1' e 'econometria1', com p-value
@@ -2006,7 +1781,7 @@ corr1, p_value1 = pearsonr(df_salarios['rh1'], df_salarios['econometria1'])
 # Matriz de correlação (maneira simples) pela função 'corr'
 corr1 = df_salarios[['rh1','econometria1']].corr()
 corr1
-#%%
+
 # Maneira mais elaborada pela função 'rcorr' do pacote 'pingouin'
 import pingouin as pg
 import warnings
@@ -2018,7 +1793,7 @@ corr1b = pg.rcorr(df_salarios[['rh1','econometria1']], method='pearson',
                               0.05: '**',
                               0.10: '*'})
 corr1b
-#%%
+
 # Mapa de calor com a correlação entre 'rh1' e 'econometria1'
 plt.figure(figsize=(15, 10))
 heatmap = sns.heatmap(corr1, annot=True, fmt=".4f",
@@ -2029,13 +1804,13 @@ heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=17)
 cbar = heatmap.collections[0].colorbar
 cbar.ax.tick_params(labelsize=17)
 plt.show()
-#%%
+
 # In[6.3]: Grafo com a inter-relação entre as variáveis do dataframe 'df1'
 
 df1 = df_salarios[['salario','rh1','econometria1']]
 cormat1 = df1.corr()
 cormat1
-#%%
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -2098,39 +1873,13 @@ cbar.set_ticks(np.arange(round(min(correlations),1),
 
 # Exibição do gráfico
 plt.show()
-#%%
+
 # In[6.4]: Modelo 1
 
 modelo1 = sm.OLS.from_formula('salario ~ rh1 + econometria1', df_salarios).fit()
 
 modelo1.summary()
 
-#%% Validação modelo apenas com parametro rh1
-modelo1_aux1 = sm.OLS.from_formula('salario ~ rh1', df_salarios).fit()
-modelo1_aux1.summary()
-
-#%% Procedimento stepwise no modelo 1
-from statstests.process import stepwise
-modelo1_step = stepwise(modelo1, pvalue_limit=0.05)
-modelo1_step.summary()
-
-#%% Validação modelo apenas com parametro econometria1
-modelo1_aux2 = sm.OLS.from_formula('salario ~ econometria1', df_salarios).fit()
-modelo1_aux2.summary() # igual ao output do procedimento stepwise acima
-
-#%% Modelo 1 aux3, rodando 'rh1' em função de 'econometria1'
-modelo1_aux3 = sm.OLS.from_formula('rh1 ~ econometria1', df_salarios).fit()
-modelo1_aux3.summary()
-
-#%% Calculo da tolerance
-tolerance1 = 1 - modelo1_aux3.rsquared
-tolerance1
-
-#%% Calculo do Vif
-vif1 = 1 / tolerance1
-vif1
-
-#%%
 # In[6.5]: Diagnóstico de multicolinearidade (Variance Inflation Factor
 #e Tolerance)
 
@@ -2146,17 +1895,17 @@ VIF["VIF"] = [variance_inflation_factor(X1.values, i+1)
 # Calculando as Tolerâncias
 VIF["Tolerância"] = 1 / VIF["VIF"]
 VIF
-#%%
+
 # In[6.6]: CORRELAÇÃO MUITO ALTA (variáveis 'rh2' e 'econometria2'):
 
 # Correlação entre 'rh2' e 'econometria2', com p-value
 corr2, p_value2 = pearsonr(df_salarios['rh2'], df_salarios['econometria2'])
 "{:.4f}".format(corr2), "{:.4f}".format(p_value2)
-#%%
+
 # Matriz de correlação (maneira simples) pela função 'corr'
 corr2 = df_salarios[['rh2','econometria2']].corr()
 corr2
-#%%
+
 # Maneira mais elaborada pela função 'rcorr' do pacote 'pingouin'
 import pingouin as pg
 
@@ -2166,7 +1915,7 @@ corr2b = pg.rcorr(df_salarios[['rh2','econometria2']], method='pearson',
                               0.05: '**',
                               0.10: '*'})
 corr2b
-#%%
+
 # Mapa de calor com a correlação entre 'rh2' e 'econometria2'
 plt.figure(figsize=(15, 10))
 heatmap = sns.heatmap(corr2, annot=True, fmt=".4f",
@@ -2177,13 +1926,13 @@ heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=17)
 cbar = heatmap.collections[0].colorbar
 cbar.ax.tick_params(labelsize=17)
 plt.show()
-#%%
+
 # In[6.7]: Grafo com a inter-relação entre as variáveis do dataframe 'df2'
 
 df2 = df_salarios[['salario','rh2','econometria2']]
 cormat2 = df2.corr()
 cormat2
-#%%
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -2246,13 +1995,13 @@ cbar.set_ticks(np.arange(round(min(correlations) - 0.01,2),
 
 # Exibição do gráfico
 plt.show()
-#%%
+
 # In[6.8]: Modelo 2
 
 modelo2 = sm.OLS.from_formula('salario ~ rh2 + econometria2', df_salarios).fit()
 
 modelo2.summary()
-#%%
+
 # In[6.9]: Diagnóstico de multicolinearidade (Variance Inflation Factor
 #e Tolerance)
 
@@ -2266,7 +2015,7 @@ VIF["VIF"] = [variance_inflation_factor(X2.values, i+1)
 # Calculando as Tolerâncias
 VIF["Tolerância"] = 1 / VIF["VIF"]
 VIF
-#%%
+
 
 # In[EXEMPLO 7]:
 #############################################################################
@@ -2276,20 +2025,18 @@ VIF
     
 df_saeb_rend = pd.read_csv('saeb_rend.csv', delimiter=',')
 df_saeb_rend
-#%%
-df_saeb_rend['codigo'] = df_saeb_rend['codigo'].astype(str)
+
 # Características das variáveis do dataset
 df_saeb_rend.info()
 
 # Estatísticas univariadas
 df_saeb_rend.describe()
-#%%
+
 # In[7.1]: Tabela de frequências absolutas das variáveis 'uf' e rede'
 
 df_saeb_rend['uf'].value_counts().sort_index()
-#%%
 df_saeb_rend['rede'].value_counts().sort_index()
-#%%
+
 # In[7.2]: Plotando a variável 'saeb' em função de 'rendimento', com fit linear
 # Gráfico pela função 'regplot' do 'seaborn'
 
@@ -2304,7 +2051,7 @@ plt.ylabel('saeb', fontsize=20)
 plt.xticks(fontsize=18)
 plt.yticks(fontsize=18)
 plt.show()
-#%%
+
 # In[7.3]: Plotando a variável 'saeb' em função de 'rendimento', com destaque
 #para a 'rede' escolar e linear fits -> Gráfico pela função 'regplot' do
 #pacote 'seaborn'
@@ -2332,7 +2079,7 @@ plt.xticks(fontsize=18)
 plt.yticks(fontsize=18)
 plt.legend(fontsize=18)
 plt.show()
-#%%
+
 # In[7.4]: Estimação do modelo de regressão e diagnóstico de heterocedasticidade
 
 # Estimando o modelo
@@ -2340,14 +2087,14 @@ modelo_saeb = sm.OLS.from_formula('saeb ~ rendimento', df_saeb_rend).fit()
 
 # Parâmetros do 'modelo_saeb'
 modelo_saeb.summary()
-#%%
+
 # In[7.5]: Adicionando fitted values e resíduos do 'modelo_saeb' no
 # dataset 'df_saeb_rend'
 
 df_saeb_rend['fitted'] = modelo_saeb.fittedvalues
 df_saeb_rend['residuos'] = modelo_saeb.resid
 df_saeb_rend
-#%%
+
 # In[7.6]: Gráfico que relaciona resíduos e fitted values do 'modelo_saeb'
 
 plt.figure(figsize=(15,10))
@@ -2360,7 +2107,7 @@ plt.ylabel('Resíduos do Modelo', fontsize=20)
 plt.xticks(fontsize=18)
 plt.yticks(fontsize=18)
 plt.show()
-#%%
+
 # In[7.7]: Histograma dos resíduos do 'modelo_saeb' com curva normal teórica
 #para comparação das distribuições
 # Kernel density estimation (KDE) - forma não-paramétrica para estimação da
@@ -2384,7 +2131,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[7.8]: Função para o teste de Breusch-Pagan para a elaboração de diagnóstico
 #de heterocedasticidade
 
@@ -2412,7 +2159,7 @@ def breusch_pagan_test(modelo):
     print(f"p-value: {p_value}")
     
     return chisq, p_value
-#%%
+
 # In[7.9]: Teste de Breusch-Pagan propriamente dito
 
 breusch_pagan_test(modelo_saeb)
@@ -2431,7 +2178,7 @@ if p > alpha:
     print('Não se rejeita H0 - Ausência de Heterocedasticidade')
 else:
 	print('Rejeita-se H0 - Existência de Heterocedasticidade')
-#%%
+
 # In[7.10]: Procedimento n-1 dummies para as unidades federativas
     
 # Dummização da variável 'uf'
@@ -2441,7 +2188,7 @@ df_saeb_rend_dummies = pd.get_dummies(df_saeb_rend, columns=['uf'],
                                       drop_first=True)
 
 df_saeb_rend_dummies
-#%%
+
 # In[7.11]: Estimação do modelo de regressão múltipla com n-1 dummies
 
 # Definição da fórmula utilizada no modelo
@@ -2451,8 +2198,7 @@ lista_colunas = list(df_saeb_rend_dummies.drop(columns=['municipio',
                                                         'rede',
                                                         'saeb',
                                                         'fitted',
-                                                        'residuos',
-                                                        'up']).columns)
+                                                        'residuos']).columns)
 formula_dummies_modelo = ' + '.join(lista_colunas)
 formula_dummies_modelo = "saeb ~ " + formula_dummies_modelo
 
@@ -2463,16 +2209,6 @@ modelo_saeb_dummies_uf = sm.OLS.from_formula(formula_dummies_modelo,
 # Parâmetros do modelo 'modelo_saeb_dummies_uf'
 modelo_saeb_dummies_uf.summary()
 
-#%%
-teste_bp = breusch_pagan_test(modelo_saeb_dummies_uf) #criação do objeto 'teste_bp'
-chisq, p = teste_bp #definição dos elementos contidos no objeto 'teste_bp'
-alpha = 0.05 #nível de significância
-if p > alpha:
-    print('Não se rejeita H0 - Ausência de Heterocedasticidade')
-else:
-	print('Rejeita-se H0 - Existência de Heterocedasticidade')
-
-#%%
 # In[7.12]: Estimação do modelo por meio do procedimento Stepwise
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -2496,14 +2232,14 @@ if p > alpha:
     print('Não se rejeita H0 - Ausência de Heterocedasticidade')
 else:
 	print('Rejeita-se H0 - Existência de Heterocedasticidade')
-#%%
+
 # In[7.14]: Adicionando fitted values e resíduos do 'modelo_saeb_dummies_uf_step'
 #no dataset 'df_saeb_rend'
 
 df_saeb_rend['fitted_step'] = modelo_saeb_dummies_uf_step.fittedvalues
 df_saeb_rend['residuos_step'] = modelo_saeb_dummies_uf_step.resid
 df_saeb_rend
-#%%
+
 # In[7.15]: Gráfico que relaciona resíduos e fitted values do
 #'modelo_saeb_dummies_uf_step'
 
@@ -2517,7 +2253,7 @@ plt.ylabel('Resíduos do Modelo Stepwise com Dummies', fontsize=20)
 plt.xticks(fontsize=18)
 plt.yticks(fontsize=18)
 plt.show()
-#%%
+
 # In[7.16]: Histograma dos resíduos do 'modelo_saeb_dummies_uf_step' com curva
 #normal teórica para comparação das distribuições
 # Kernel density estimation (KDE) - forma não-paramétrica para estimação da
@@ -2541,7 +2277,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[7.17]: Plotando a variável 'saeb' em função de 'rendimento', com destaque
 #para as unidades federativas e fits lineares - Gráfico pela função 'lmplot' do
 #pacote 'seaborn', com estratificação de 'uf' pelo argumento 'hue'
@@ -2560,7 +2296,7 @@ plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.legend(fontsize=10, ncol=3, bbox_to_anchor=(1, 0.75))
 plt.show()
-#%%
+
 
 # In[EXEMPLO 8]:
 #############################################################################
@@ -2576,7 +2312,7 @@ df_planosaude.info()
 
 # Estatísticas univariadas
 df_planosaude.describe()
-#%%
+
 # In[8.1]: Tabela de frequências absolutas da variável 'plano'
 
 df_planosaude['plano'].value_counts().sort_index()
@@ -2604,7 +2340,7 @@ for ax in graph.axes.flat:
     ax.set_xlabel(ax.get_xlabel(), fontsize=17)
     ax.set_ylabel(ax.get_ylabel(), fontsize=17)
 plt.show()
-#%%
+
 # In[8.3]: Dummizando a variável 'plano' (n-1 dummies)
 
 df_planosaude_dummies = pd.get_dummies(df_planosaude, columns=['plano'],
@@ -2612,7 +2348,7 @@ df_planosaude_dummies = pd.get_dummies(df_planosaude, columns=['plano'],
                                        drop_first=True)
 
 df_planosaude_dummies
-#%%
+
 # In[8.4]: Estimação do modelo de regressão múltipla com n-1 dummies
 
 # Definição da fórmula utilizada no modelo
@@ -2627,7 +2363,7 @@ modelo_planosaude = sm.OLS.from_formula(formula_dummies_modelo,
 
 # Parâmetros do modelo
 modelo_planosaude.summary()
-#%%
+
 # In[8.5]: Procedimento Stepwise
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -2638,7 +2374,7 @@ from statstests.process import stepwise
 
 # Estimação do modelo por meio do procedimento Stepwise
 modelo_step_planosaude = stepwise(modelo_planosaude, pvalue_limit=0.05)
-#%%
+
 # In[8.6]: Teste de verificação da aderência dos resíduos à normalidade
 
 # Teste de Shapiro-Francia (n >= 30)
@@ -2658,7 +2394,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[8.7]: Histograma dos resíduos do 'modelo_step_planosaude' com curva normal
 #teórica para comparação das distribuições
 # Kernel density estimation (KDE) - forma não-paramétrica para estimação da
@@ -2682,7 +2418,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[8.8]: Função para o teste de Breusch-Pagan para a elaboração de diagnóstico
 #de heterocedasticidade
 
@@ -2710,7 +2446,7 @@ def breusch_pagan_test(modelo):
     print(f"p-value: {p_value}")
     
     return chisq, p_value
-#%%
+
 # In[8.9]: Teste de Breusch-Pagan propriamente dito
 
 breusch_pagan_test(modelo_step_planosaude)
@@ -2729,14 +2465,14 @@ if p > alpha:
     print('Não se rejeita H0 - Ausência de Heterocedasticidade')
 else:
 	print('Rejeita-se H0 - Existência de Heterocedasticidade')
-#%%
+
 # In[8.10]: Adicionando fitted values e resíduos do 'modelo_step_planosaude'
 #no dataframe 'df_planosaude_dummies'
 
 df_planosaude_dummies['fitted_step'] = modelo_step_planosaude.fittedvalues
 df_planosaude_dummies['residuos_step'] = modelo_step_planosaude.resid
 df_planosaude_dummies
-#%%
+
 # In[8.11]: Gráfico que relaciona resíduos e fitted values do
 #'modelo_step_planosaude'
 
@@ -2753,7 +2489,7 @@ x_min = df_planosaude_dummies['fitted_step'].min()-1
 x_max = df_planosaude_dummies['fitted_step'].max()+1
 plt.xlim(x_min, x_max)
 plt.show()
-#%%
+
 # In[8.12]: Gráfico que relaciona resíduos e fitted values do
 #'modelo_step_planosaude', com boundaries
 
@@ -2774,7 +2510,7 @@ sns.kdeplot(data=df_planosaude_dummies, x='fitted_step', y='residuos_step',
             levels=2, color='red', linewidths=3)
 
 plt.show()
-#%%
+
 # In[8.13]: Transformação de Box-Cox
 
 # Para o cálculo do lambda de Box-Cox
@@ -2785,7 +2521,7 @@ from scipy.stats import boxcox
 yast, lmbda = boxcox(df_planosaude_dummies['despmed'])
 
 print("Lambda: ",lmbda)
-#%%
+
 # In[8.14]: Inserindo o lambda de Box-Cox no dataset para a estimação de um
 #novo modelo
 
@@ -2798,7 +2534,7 @@ df_planosaude_dummies['bc_despmed2'] = ((df_planosaude_dummies['despmed'])**\
 df_planosaude_dummies
 
 del df_planosaude_dummies['bc_despmed2']
-#%%
+
 # In[8.15]: Estimando um novo modelo com todas as variáveis e a variável
 #dependente transformada
 modelo_bc_planosaude = sm.OLS.from_formula('bc_despmed ~ idade + dcron +\
@@ -2808,11 +2544,11 @@ modelo_bc_planosaude = sm.OLS.from_formula('bc_despmed ~ idade + dcron +\
 
 # Parâmetros do modelo
 modelo_bc_planosaude.summary()
-#%%
+
 # In[8.16]: Procedimento Stepwise no 'modelo_bc_planosaude'
 
 modelo_step_bc_planosaude = stepwise(modelo_bc_planosaude, pvalue_limit=0.05)
-#%%
+
 # In[8.17]: Teste de verificação da aderência à normalidade dos resíduos do novo
 #'modelo_step_bc_planosaude'
 
@@ -2826,7 +2562,7 @@ if p[1] > alpha:
 	print('Não se rejeita H0 - Distribuição aderente à normalidade')
 else:
 	print('Rejeita-se H0 - Distribuição não aderente à normalidade')
-#%%
+
 # In[8.18]: Histograma dos resíduos do 'modelo_step_bc_planosaude' com curva
 #normal teórica para comparação das distribuições
 # Kernel density estimation (KDE) - forma não-paramétrica para estimação da
@@ -2850,7 +2586,7 @@ plt.ylabel('Frequência', fontsize=20)
 plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-#%%
+
 # In[8.19]: Teste de Breusch-Pagan para diagnóstico de heterocedasticidade
 #no 'modelo_step_bc_planosaude'
 
@@ -2865,14 +2601,13 @@ if p > alpha:
 else:
 	print('Rejeita-se H0 - Existência de Heterocedasticidade')
 
-#%%
 # In[8.20]: Adicionando fitted values e resíduos do 'modelo_step_bc_planosaude'
 #no dataframe 'df_planosaude_dummies'
 
 df_planosaude_dummies['fitted_step_bc'] = modelo_step_bc_planosaude.fittedvalues
 df_planosaude_dummies['residuos_step_bc'] = modelo_step_bc_planosaude.resid
 df_planosaude_dummies
-#%%
+
 # In[8.21]: Gráfico que relaciona resíduos e fitted values do
 #'modelo_step_bc_planosaude'
 
@@ -2889,7 +2624,7 @@ x_min = df_planosaude_dummies['fitted_step_bc'].min()-0.01
 x_max = df_planosaude_dummies['fitted_step_bc'].max()+0.01
 plt.xlim(x_min, x_max)
 plt.show()
-#%%
+
 # In[8.22]: Gráfico que relaciona resíduos e fitted values do
 #'modelo_step_bc_planosaude', com boundaries
 
@@ -2910,4 +2645,3 @@ sns.kdeplot(data=df_planosaude_dummies, x='fitted_step_bc', y='residuos_step_bc'
             levels=2, color='green', linewidths=3)
 
 ################################## FIM ######################################
-# %%

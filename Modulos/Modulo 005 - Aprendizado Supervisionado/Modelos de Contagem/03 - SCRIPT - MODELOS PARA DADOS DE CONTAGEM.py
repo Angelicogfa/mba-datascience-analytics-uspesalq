@@ -5,9 +5,9 @@
 
 #!/usr/bin/env python
 # coding: utf-8
-#%%
+
 # In[0.1]: Instalação dos pacotes
-!pip install tqdm
+
 !pip install pandas
 !pip install numpy
 !pip install -U seaborn
@@ -17,7 +17,7 @@
 !pip install statsmodels
 !pip install scikit-learn
 !pip install statstests
-#%%
+
 # In[0.2]: Importação dos pacotes
 
 import pandas as pd # manipulação de dados em formato de dataframe
@@ -36,7 +36,7 @@ from statsmodels.iolib.summary2 import summary_col # comparação entre modelos
 
 import warnings
 warnings.filterwarnings('ignore')
-#%%
+
 
 # In[POISSON]:
 ##############################################################################
@@ -70,7 +70,7 @@ df_lambda = pd.DataFrame({'m':m,
                           'lambda_2':lmbda_2,
                           'lambda_4':lmbda_4})
 df_lambda
-#%%
+
 # In[Poisson 2]: Plotagem propriamente dita
 
 from scipy.interpolate import interp1d
@@ -95,7 +95,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend([r'$\lambda$ = 1',r'$\lambda$ = 2',r'$\lambda$ = 4'], fontsize=24)
 plt.show
-#%%
+
 
 # In[EXEMPLO]:
 ##############################################################################
@@ -110,12 +110,13 @@ plt.show
 
 df_corruption = pd.read_csv('corruption.csv', delimiter=',')
 df_corruption
-#%%
+
 # Características das variáveis do dataset
 df_corruption.info()
-#%%
+
 # Estatísticas univariadas
 df_corruption.describe()
+
 # In[1]: Tabela de frequências da variável dependente 'violations'
 # Função 'values_counts' do pacote 'pandas', sem e com o argumento
 #'normalize=True', para gerar as contagens e os percentuais, respectivamente
@@ -124,6 +125,7 @@ contagem = df_corruption['violations'].value_counts(dropna=False)
 percent = (df_corruption['violations'].value_counts(dropna=False, normalize=True)*100).round(2)
 table = pd.concat([contagem, percent], axis=1, keys=['contagem', '%'], sort=True)
 table
+
 # In[2]: Visualização da tabela de frequências da variável dependente 'violations'
 #no ambiente Plots (apenas para fins didáticos)
 
@@ -198,15 +200,13 @@ plt.show()
 # O argumento 'family=sm.families.Poisson()' da função 'smf.glm' define a
 #estimação de um modelo Poisson
 
-modelo_poisson = 
-
-
-.glm(formula='violations ~ staff + post + corruption',
+modelo_poisson = smf.glm(formula='violations ~ staff + post + corruption',
                          data=df_corruption,
                          family=sm.families.Poisson()).fit()
 
 # Parâmetros do 'modelo_poisson'
 modelo_poisson.summary()
+
 # In[7]: Outro modo mais completo de apresentar os outputs do modelo,
 #pela função 'summary_col'
 
@@ -217,6 +217,7 @@ summary_col([modelo_poisson],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
         })
+
 # In[8]: Todas as variáveis preditoras se mostraram estatisticamente
 #diferentes de zero, considerando-se um nível de significância de 5%,
 #ceteris paribus. Porém, já se pode afirmar que a estimação Poisson é a mais
@@ -239,13 +240,13 @@ summary_col([modelo_poisson],
 # Adicionando os fitted values do modelo Poisson ('lambda_poisson') ao dataframe
 df_corruption['lambda_poisson'] = modelo_poisson.fittedvalues
 df_corruption
-#%%
+
 # Criando a nova variável Y* ('ystar')
 df_corruption['ystar'] = (((df_corruption['violations']
                             -df_corruption['lambda_poisson'])**2)
                           -df_corruption['violations'])/df_corruption['lambda_poisson']
 df_corruption
-#%%
+
 # Estimando o modelo auxiliar OLS, sem o intercepto
 modelo_auxiliar = sm.OLS.from_formula('ystar ~ 0 + lambda_poisson',
                                       df_corruption).fit()
@@ -254,10 +255,10 @@ modelo_auxiliar = sm.OLS.from_formula('ystar ~ 0 + lambda_poisson',
 modelo_auxiliar.summary()
 
 # Caso o p-value do parâmetro de lambda_poisson seja maior que 0.05,
-# verifica-se a existência de equidispersão nos dados.
+#verifica-se a existência de equidispersão nos dados.
 # Caso contrário, diagnostica-se a existência de superdispersão nos dados, fato
-# que favorecerá a estimação de um modelo binomial negativo, como ocorre nesse
-# caso.
+#que favorecerá a estimação de um modelo binomial negativo, como ocorre nesse
+#caso.
 
 # In[9]: Função 'overdisp'
 
@@ -280,10 +281,10 @@ overdisp(modelo_poisson, df_corruption)
 #considerando o período anterior à vigência da lei e cujo índice de corrupção
 #seja igual a 0.5?
 
-modelo_poisson.predict(pd.DataFrame({'staff':[28],
+modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['no'],
-                                     'corruption':[1.]}))
-#%%
+                                     'corruption':[0.5]}))
+
 # Qual seria a quantidade média esperada de violações de trânsito para o mesmo
 #país, porém agora considerando a vigência da lei?
 
@@ -291,7 +292,7 @@ modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['yes'],
                                      'corruption':[0.5]}))
 
-#%%
+
 # In[BINOMIAL NEGATIVA]:
 ##############################################################################
 #                     A DISTRIBUIÇÃO BINOMIAL NEGATIVA                       #
@@ -304,7 +305,7 @@ modelo_poisson.predict(pd.DataFrame({'staff':[23],
 
 def bneg(theta, delta, m):
     return ((delta ** theta) * (m ** (theta - 1)) * (exp(-m * delta))) / factorial(theta - 1)
-#%%
+
 # In[Binomial Negativa 1]: Plotagem das funções estabelecidas para diferentes valores de
 #theta e delta
 
@@ -330,7 +331,7 @@ df_bneg = pd.DataFrame({'m':m,
                         'bneg_theta3_delta05':bneg_theta3_delta05})
 
 df_bneg
-#%%
+
 # In[Binomial Negativa 2]: Plotagem propriamente dita
 
 def smooth_line_plot(x,y):
@@ -359,6 +360,7 @@ plt.legend([r'$\theta$ = 2 e $\delta$ = 2',
             r'$\theta$ = 3 e $\delta$ = 0.5'],
            fontsize=24)
 plt.show
+
 # In[11]: Estimação do modelo binomial negativo do tipo NB2
 
 # O argumento 'family=sm.families.NegativeBinomial(alpha=2.0963)' da função
@@ -373,6 +375,7 @@ modelo_bneg = smf.glm(formula='violations ~ staff + post + corruption',
 
 # Parâmetros do 'modelo_bneg'
 modelo_bneg.summary()
+
 # In[12]: Construção de uma função para a definição do 'fi' ótimo (argumento 'alpha')
 # que gera a maximização do valor de Log-Likelihood
 
@@ -395,7 +398,7 @@ for i, alpha in tqdm(enumerate(alphas), total=n_samples, desc='Estimating'):
 
 fi_ótimo = alphas[np.nanargmax(llf)].round(4)
 fi_ótimo
-#%%
+
 # In[13]: Plotagem dos resultados (Log-likelihood x fi)
 
 plt.figure(figsize=(12, 8))
@@ -453,11 +456,12 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
+
 # In[17]: Teste de de razão de verossimilhança para comparar as estimações dos
 #'modelo_poisson' e 'modelo_bneg'
 
 lrtest([modelo_poisson, modelo_bneg])
-#%%
+
 # In[18]: Gráfico para a comparação dos LogLiks dos modelos Poisson e
 #binomial negativo
 
@@ -465,7 +469,7 @@ lrtest([modelo_poisson, modelo_bneg])
 df_llf = pd.DataFrame({'modelo':['Poisson','BNeg'],
                       'loglik':[modelo_poisson.llf, modelo_bneg.llf]})
 df_llf
-#%%
+
 # Plotagem propriamente dita
 fig, ax = plt.subplots(figsize=(15,10))
 
@@ -533,7 +537,7 @@ plt.show()
 modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['no'],
                                      'corruption':[0.5]}))
-#%%
+
 # Modelo binomial negativo:
 
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
@@ -550,7 +554,7 @@ modelo_bneg.predict(pd.DataFrame({'staff':[23],
 modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['yes'],
                                      'corruption':[0.5]}))
-#%%
+
 # Modelo binomial negativo:
 
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
@@ -590,7 +594,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(loc='upper center', fontsize=17)
 plt.show
-#%%
+
 
 # In[24]:
 ##############################################################################
@@ -611,13 +615,14 @@ df_corruption2 = df_corruption2[df_corruption2['violations'] <= 3]
 
 # Visualização do dataframe 'df_corruption2'
 df_corruption2
-#%%
+
 # Características do dataframe (224 observações)
 df_corruption2.info()
-#%%
+
 # Estatísticas univariadas (note que o valor máximo de ocorrências na variável
 #'violations' agora é 3)
 df_corruption2.describe()
+
 # In[25]: Histograma da variável dependente 'violations' no dataframe 'df_corruption2'
 
 with sns.axes_style("whitegrid"):
@@ -657,13 +662,7 @@ from statstests.tests import overdisp
 
 # Elaboração direta do teste de superdispersão
 overdisp(modelo_poisson2, df_corruption2)
-#%%
 
-
-modelo_bneg_direto2 = sm.NegativeBinomial.from_formula('violations ~ staff + post + corruption',
-                                                      data=df_corruption2).fit()
-
-modelo_bneg_direto2.summary()
 # In[29]: Estimação do modelo binomial negativo ('modelo_bneg2') no dataframe
 #'df_corruption2'
 
@@ -684,7 +683,7 @@ for i, alpha in tqdm(enumerate(alphas), total=n_samples, desc='Estimating'):
 
 fi_ótimo2 = alphas[np.nanargmax(llf)].round(4)
 fi_ótimo2
-#%%
+
 # Estimação propriamente dita do 'modelo_bneg2'
 
 modelo_bneg2 = smf.glm(formula='violations ~ staff + post + corruption',
@@ -734,7 +733,7 @@ def lrtest(modelos):
 #'modelo_poisson2' e 'modelo_bneg2'
 
 lrtest([modelo_poisson2, modelo_bneg2])
-#%%
+
 # Quando não há superdispersão, não existem diferenças significantes entre os
 #modelos Poisson e binomial negativo!
 
@@ -756,7 +755,7 @@ def zip_lambda1_plogit07(m):
         return (plogit) + ((1 - plogit) * exp(-lmbda))
     else:
         return (1 - plogit) * ((exp(-lmbda) * lmbda ** m) / factorial(m))
-#%%
+
 # In[ZIP 1]: Criando um dataframe ('df_zip') com m variando de 0 a 20
 
 m = np.arange(0,21)
@@ -766,7 +765,7 @@ zip_lambda1_plogit07 = [zip_lambda1_plogit07(i) for i in m]
 df_zip = pd.DataFrame({'m':m,
                        'zip_lambda1_plogit07':zip_lambda1_plogit07})
 df_zip
-#%%
+
 # In[ZIP 2]: Gráfico para comparar as distribuições Poisson, BNeg e ZIP
 
 def smooth_line_plot(x,y):
@@ -774,7 +773,7 @@ def smooth_line_plot(x,y):
     f = interp1d(x, y, kind='quadratic')
     y_smooth=f(x_new)
     return x_new, y_smooth
-#%%
+
 x_new, zip_lambda1_plogit07 = smooth_line_plot(df_zip.m,
                                                df_zip.zip_lambda1_plogit07)
 
@@ -799,7 +798,7 @@ plt.legend([r'Poisson: $\lambda$ = 1',
             r'ZIP: $\lambda$ = 1 e plogit = 0.7'],
            fontsize=24)
 plt.show
-#%%
+
 # In[33]:
 ##############################################################################
 #              ESTIMAÇÃO DO MODELO ZERO-INFLATED POISSON (ZIP)               #
@@ -810,7 +809,7 @@ plt.show
 
 # Definição da variável dependente (voltando ao dataset 'df_corruption')
 y = df_corruption['violations']
-#%%
+
 # Definição das variáveis preditoras que entrarão no componente de contagem
 x1 = df_corruption[['staff','post','corruption']]
 X1 = sm.add_constant(x1)
@@ -819,14 +818,11 @@ X1 = sm.add_constant(x1)
 # Se estimarmos o modelo sem dummizar as variáveis categóricas, o modelo retorna
 #um erro
 X1 = pd.get_dummies(X1, columns=['post'], dtype=int, drop_first=True)
-X1
-#%%
+
 # Definição das variáveis preditoras que entrarão no componente logit (inflate)
 x2 = df_corruption[['corruption']]
 X2 = sm.add_constant(x2)
 
-X2
-#%%
 # O argumento 'exog_infl' corresponde às variáveis que entram no componente
 #logit (inflate)
 modelo_zip = sm.ZeroInflatedPoisson(y, X1, exog_infl=X2,
@@ -834,7 +830,7 @@ modelo_zip = sm.ZeroInflatedPoisson(y, X1, exog_infl=X2,
 
 # Parâmetros do 'modelo_zip'
 modelo_zip.summary()
-#%%
+
 # In[34]: Teste de Vuong
 
 # VUONG, Q. H. Likelihood ratio tests for model selection and non-nested
@@ -919,12 +915,12 @@ def vuong_test(m1, m2):
         print("H1: Indicates inflation of zeros at 95% confidence level")
     else:
         print("H0: Indicates no inflation of zeros at 95% confidence level")
-#%%
+
 # In[35]: Teste de Vuong propriamente dito para verificação de existência de
 #inflação de zeros no modelo ZIP, em comparação com o modelo Poisson
 
 vuong_test(modelo_poisson, modelo_zip)
-#%%
+
 # Ocorrência de inflação de zeros!
 
 # In[36]: Comparando os modelos Poisson e ZIP
@@ -936,7 +932,7 @@ summary_col([modelo_poisson, modelo_zip],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
                 })
-#%%
+
 # In[37]: Definição da função para realização do teste de razão de verossimilhança
 
 # Definição da função 'lrtest'
@@ -961,12 +957,12 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-#%%
+
 # In[38]: Teste de de razão de verossimilhança para comparar as estimações dos
 #'modelo_poisson' e 'modelo_zip'
 
 lrtest([modelo_poisson, modelo_zip])
-#%%
+
 # In[39]: Gráfico para a comparação dos LogLiks dos modelos Poisson,
 #binomial negativo e ZIP
 
@@ -976,7 +972,7 @@ df_llf = pd.DataFrame({'modelo':['Poisson','ZIP','BNeg'],
                                 modelo_zip.llf,
                                 modelo_bneg.llf]})
 df_llf
-#%%
+
 # Plotagem propriamente dita
 fig, ax = plt.subplots(figsize=(15,10))
 
@@ -989,7 +985,7 @@ ax.set_xlabel("LogLik", fontsize=20)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-#%%
+
 
 # In[ZINB]:
 ##############################################################################
@@ -1011,7 +1007,7 @@ def zinb_theta2_delta2_plogit07_lambda2(m):
                                (exp(-m * delta))) / factorial(theta - 1)
 
 # In[ZINB 1]: Criando um dataframe ('df_zinb') com m variando de 0 a 20
-#%%
+
 m = np.arange(0,21)
 
 zinb_theta2_delta2_plogit07_lambda2 = [zinb_theta2_delta2_plogit07_lambda2(i)
@@ -1020,7 +1016,7 @@ zinb_theta2_delta2_plogit07_lambda2 = [zinb_theta2_delta2_plogit07_lambda2(i)
 df_zinb = pd.DataFrame({'m':m,
                        'zinb_theta2_delta2_plogit07_lambda2':zinb_theta2_delta2_plogit07_lambda2})
 df_zinb
-#%%
+
 # In[ZINB 2]: Gráfico para comparar as distribuições Poisson, BNeg, ZIP e ZINB
 
 def smooth_line_plot(x,y):
@@ -1055,7 +1051,7 @@ plt.legend([r'Poisson: $\lambda$ = 1',
             r'ZINB: $\lambda$$_{bneg}$ = 1, plogit = 0.7, $\theta$ = 2 e $\delta$ = 2'],
            fontsize=24)
 plt.show
-#%%
+
 # In[40]:
 ##############################################################################
 #        ESTIMAÇÃO DO MODELO ZERO-INFLATED BINOMIAL NEGATIVO (ZINB)          #
@@ -1087,7 +1083,7 @@ modelo_zinb = ZeroInflatedNegativeBinomialP(y, X1, exog_infl=X2,
 
 # Parâmetros do 'modelo_zinb'
 modelo_zinb.summary()
-#%%
+
 # O parâmetro 'alpha' representa o 'fi' e é o inverso do parâmetro 'theta',
 #ou seja, o inverso do parâmetro de forma da distribuição Poisson-Gama.
 # Como 'alpha' (e da mesma forma 'theta') é estatisticamente diferente de
@@ -1098,7 +1094,7 @@ modelo_zinb.summary()
 #no modelo ZINB, em comparação com o modelo binomial negativo
 
 vuong_test(modelo_bneg, modelo_zinb)
-#%%
+
 # Ocorrência de inflação de zeros!
 
 # In[42]: Comparando os modelos BNeg e ZINB
@@ -1110,12 +1106,12 @@ summary_col([modelo_bneg, modelo_zinb],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
                 })
-#%%
+
 # In[43]: Teste de razão de verossimilhança para comparar as estimações dos
 #'modelo_bneg' e 'modelo_zinb' (função 'lrtest' definida anteriormente)
 
 lrtest([modelo_bneg, modelo_zinb])
-#%%
+
 # In[44]: COMPARAÇÕES ENTRE AS PREVISÕES:
 
 # Supondo que considerássemos a estimação ZIP como a mais adequada, qual seria a 
@@ -1128,36 +1124,36 @@ lrtest([modelo_bneg, modelo_zinb])
 modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['no'],
                                      'corruption':[0.5]}))
-#%%
+
 # Modelo binomial negativo:
 
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
                                   'post':['no'],
                                   'corruption':[0.5]}))
-#%%
+
 # Modelo ZIP:
 # Obs.: manter a ordem dos parâmetros nos argumentos da função 'predict'
 
 modelo_zip.params
-#%%
+
 modelo_zip.predict(pd.DataFrame({'const':[1],
                                  'staff':[23],
                                  'corruption':[0.5],
                                  'post_yes':[0]}),
                    exog_infl=pd.DataFrame({'const':[1],
                                            'corruption':[0.5]}))
-#%%
+
 # Modelo ZINB:
 
 modelo_zinb.params
-#%%
+
 modelo_zinb.predict(pd.DataFrame({'const':[1],
                                   'staff':[23],
                                   'corruption':[0.5],
                                   'post_yes':[0]}),
                     exog_infl=pd.DataFrame({'const':[1],
                                             'corruption':[0.5]}))
-#%%
+
 # In[45]: COMPARAÇÕES ENTRE AS PREVISÕES (continuação):
     
 # Qual seria a quantidade média esperada de violações de trânsito para o mesmo
@@ -1168,13 +1164,13 @@ modelo_zinb.predict(pd.DataFrame({'const':[1],
 modelo_poisson.predict(pd.DataFrame({'staff':[23],
                                      'post':['yes'],
                                      'corruption':[0.5]}))
-#%%
+
 # Modelo binomial negativo:
 
 modelo_bneg.predict(pd.DataFrame({'staff':[23],
                                   'post':['yes'],
                                   'corruption':[0.5]}))
-#%%
+
 # Modelo ZIP:
 
 modelo_zip.predict(pd.DataFrame({'const':[1],
@@ -1183,7 +1179,7 @@ modelo_zip.predict(pd.DataFrame({'const':[1],
                                  'post_yes':[1]}),
                    exog_infl=pd.DataFrame({'const':[1],
                                            'corruption':[0.5]}))
-#%%
+
 # Modelo ZINB:
 
 modelo_zinb.predict(pd.DataFrame({'const':[1],
