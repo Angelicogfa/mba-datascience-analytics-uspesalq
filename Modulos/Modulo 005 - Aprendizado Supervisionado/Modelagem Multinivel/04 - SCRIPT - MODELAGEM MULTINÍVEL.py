@@ -5,7 +5,7 @@
 
 #!/usr/bin/env python
 # coding: utf-8
-
+#%%
 # In[0.1]: Instalação dos pacotes
 
 !pip install pandas
@@ -18,7 +18,7 @@
 !pip install scikit-learn
 !pip install statstests
 !pip install -q pymer4
-
+#%%
 # In[0.2]: Importação dos pacotes necessários
 
 import pandas as pd # manipulação de dados em formato de dataframe
@@ -34,7 +34,7 @@ from matplotlib.gridspec import GridSpec # plotagem de gráficos separados
 import time # definição do intervalo de tempo entre gráficos com animação
 import imageio # para geração de figura GIF
 from tqdm import tqdm # adiciona um indicador de progresso do código
-
+#%%
 
 # In[HLM2]:
 ##############################################################################
@@ -53,26 +53,26 @@ df_aluno_escola = pd.read_csv('desempenho_aluno_escola.csv', delimiter=',')
 
 # Visualização da base de dados 'desempenho_aluno_escola'
 df_aluno_escola
-
+#%%
 # Atribuição de categorias para as variáveis 'estudante' e 'escola'
 df_aluno_escola['estudante'] = df_aluno_escola['estudante'].astype('category')
 df_aluno_escola['escola'] = df_aluno_escola['escola'].astype('category')
 
 # Características das variáveis do dataset
 df_aluno_escola.info()
-
+#%%
 # Estatísticas univariadas
 df_aluno_escola.describe()
-
+#%%
 # In[1.1]: Estudo sobre o desbalanceamento dos dados por escola
 
 df_aluno_escola.groupby('escola')['estudante'].count().reset_index()
-
+#%%
 # In[1.2]: Desempenho médio dos estudantes por escola
 
 desempenho_medio = df_aluno_escola.groupby('escola')['desempenho'].mean().reset_index()
 desempenho_medio
-
+#%%
 # In[1.3]: Gráfico do desempenho escolar médio dos estudantes por escola
 
 plt.figure(figsize=(15,10))
@@ -85,7 +85,7 @@ plt.ylabel('Desempenho Escolar', fontsize=20)
 plt.xticks(desempenho_medio.escola, fontsize=17)
 plt.yticks(fontsize=17)
 plt.show()
-
+#%%
 # In[1.4]: Boxplot da variável dependente ('desempenho')
 
 plt.figure(figsize=(15,10))
@@ -96,7 +96,7 @@ sns.stripplot(data=df_aluno_escola, y='desempenho',
 plt.ylabel('Desempenho Escolar', fontsize=20)
 plt.yticks(fontsize=17)
 plt.show()
-
+#%%
 # In[1.5]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho'), com histograma
 
@@ -108,7 +108,7 @@ plt.ylabel('Contagem', fontsize=20)
 plt.tick_params(axis='y', labelsize=17)
 plt.tick_params(axis='x', labelsize=17)
 plt.show()
-
+#%%
 # In[1.6]: Boxplot da variável dependente ('desempenho') por escola
 
 plt.figure(figsize=(15,10))
@@ -121,7 +121,7 @@ plt.xlabel('Escola $j$ (nível 2)', fontsize=20)
 plt.tick_params(axis='y', labelsize=17)
 plt.tick_params(axis='x', labelsize=17)
 plt.show()
-
+#%%
 # In[1.7]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho') por escola
 
@@ -150,7 +150,7 @@ plt.gcf().text(0.5, -0.01, 'Desempenho Escolar', ha='center', fontsize=20)
 plt.gcf().text(-0.01, 0.5, 'Frequência', va='center', rotation='vertical',
                fontsize=20)
 plt.show()
-
+#%%
 # In[1.8]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho'), com histograma e por escola separadamente
 #(função 'GridSpec' do pacote 'matplotlib.gridspec')
@@ -188,7 +188,7 @@ for i, escola in enumerate(escolas):
 
 plt.tight_layout()
 plt.show()
-
+#%%
 # In[1.9]: Gráfico de desempenho x horas (OLS)
 
 plt.figure(figsize=(15,10))
@@ -200,7 +200,7 @@ plt.ylabel('Desempenho Escolar', fontsize=20)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.show
-
+#%%
 # In[1.10]: Gráfico de desempenho x horas (OLS) por escola separadamente
 # Animação no ambiente Plots
 
@@ -234,7 +234,7 @@ while True:
 
         # Intervalo de tempo entre os gráficos
         time.sleep(1)
-        
+#%%
 # In[1.11]: Gráfico de desempenho x horas (OLS) por escola separadamente
 # Geração de uma Figura GIF
 
@@ -284,7 +284,7 @@ imageio.mimsave('graficos_escolas.gif', frames, fps=1)
 plt.imshow(frames[0])
 plt.axis('off')
 plt.show()
-
+#%%
 # In[1.12]: Gráfico de desempenho escolar em função da variável 'horas'
 # Variação entre estudantes de uma mesma escola e entre escolas diferentes
 # Visualização do contexto!
@@ -309,7 +309,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(title='Escola', title_fontsize='14', fontsize='13', loc='upper left')
 plt.show()
-
+#%%
 # In[1.13]:
 ##############################################################################
 #                        ESTIMAÇÃO DO MODELO NULO HLM2                       #
@@ -324,7 +324,7 @@ modelo_nulo_hlm2 = sm.MixedLM.from_formula(formula='desempenho ~ 1',
 
 # Parâmetros do 'modelo_nulo_hlm2'
 modelo_nulo_hlm2.summary()
-
+#%%
 # In[1.14]: Análise da significância estatística dos efeitos aleatórios de
 #intercepto
 
@@ -340,7 +340,7 @@ if p_value >= 0.05:
     print("Ausência de significância estatística dos efeitos aleatórios ao nível de confiança de 95%.")
 else:
     print("Efeitos aleatórios contextuais significantes ao nível de confiança de 95%.")
-
+#%%
 # In[1.15]:
 ##############################################################################
 #                   COMPARAÇÃO DO HLM2 NULO COM UM OLS NULO                  #
@@ -353,7 +353,7 @@ modelo_ols_nulo = sm.OLS.from_formula(formula='desempenho ~ 1',
 
 # Parâmetros do 'modelo_ols_nulo'
 modelo_ols_nulo.summary()
-
+#%%
 # In[1.16]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -371,7 +371,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[1.17]: Teste de razão de verossimilhança entre o 'modelo_nulo_hlm2' e o
 #'modelo_ols_nulo'
 
@@ -395,12 +395,12 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-
+#%%
 # In[1.18]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_ols_nulo' e 'modelo_nulo_hlm2'
 
 lrtest([modelo_ols_nulo, modelo_nulo_hlm2])
-
+#%%
 # In[1.19]:
 ##############################################################################
 #     ESTIMAÇÃO DO MODELO COM INTERCEPTOS E INCLINAÇÕES ALEATÓRIOS HLM2      #
@@ -415,7 +415,7 @@ modelo_intercept_inclin_hlm2 = sm.MixedLM.from_formula(formula='desempenho ~ hor
 
 # Parâmetros do 'modelo_intercept_inclin_hlm2'
 modelo_intercept_inclin_hlm2.summary()
-
+#%%
 # In[1.20]: Análise da significância estatística dos efeitos aleatórios de
 #intercepto
 
@@ -431,7 +431,7 @@ if p_value >= 0.05:
     print("Ausência de significância estatística dos efeitos aleatórios ao nível de confiança de 95%.")
 else:
     print("Efeitos aleatórios contextuais significantes ao nível de confiança de 95%.")
-
+#%%
 # In[1.21]: Análise da significância estatística dos efeitos aleatórios de
 #inclinação
 
@@ -447,7 +447,7 @@ if p_value >= 0.05:
     print("Ausência de significância estatística dos efeitos aleatórios ao nível de confiança de 95%.")
 else:
     print("Efeitos aleatórios contextuais significantes ao nível de confiança de 95%.")
-
+#%%
 # In[1.22]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -467,7 +467,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[1.23]: Teste de razão de verossimilhança entre o 'modelo_nulo_hlm2' e o
 #'modelo_intercept_inclin_hlm2'
 
@@ -491,12 +491,12 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-
+#%%
 # In[1.24]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_nulo_hlm2' e 'modelo_intercept_inclin_hlm2'
 
 lrtest([modelo_nulo_hlm2, modelo_intercept_inclin_hlm2])
-
+#%%
 # In[1.25]:
 ##############################################################################
 #  ESTIMAÇÃO DO MODELO FINAL COM INTERCEPTOS E INCLINAÇÕES ALEATÓRIOS HLM2   #
@@ -512,7 +512,7 @@ modelo_final_hlm2 = sm.MixedLM.from_formula(formula='desempenho ~ horas + texp +
 
 # Parâmetros do modelo 'modelo_final_hlm2'
 modelo_final_hlm2.summary()
-
+#%%
 # In[1.26]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -534,12 +534,12 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[1.27]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_intercept_inclin_hlm2' e 'modelo_final_hlm2'
 
 lrtest([modelo_intercept_inclin_hlm2, modelo_final_hlm2])
-
+#%%
 # In[1.28]: Visualização dos interceptos e inclinações aleatórios por escola,
 #para o 'modelo_final_hlm2'
 
@@ -553,7 +553,7 @@ efeitos_aleatorios = efeitos_aleatorios.rename(columns = {'escola':'v0j'})
 efeitos_aleatorios = efeitos_aleatorios.rename(columns = {'horas':'v1j'})
 efeitos_aleatorios = efeitos_aleatorios.reset_index().rename(columns={'index': 'escola'})
 efeitos_aleatorios
-
+#%%
 # In[1.30]: Gráfico para visualização do comportamento dos valores de v0j,
 #ou seja, dos interceptos aleatórios por escola
 
@@ -583,7 +583,7 @@ plt.tick_params(axis='x', labelsize=17)
 plt.tick_params(axis='y', labelsize=17)
 plt.yticks(np.arange(0, 11, 1))
 plt.show()
-
+#%%
 # In[1.31]: Gráfico para visualização do comportamento dos valores de v1j,
 #ou seja, das inclinações aleatórias por escola
 
@@ -608,11 +608,11 @@ plt.tick_params(axis='x', labelsize=17)
 plt.tick_params(axis='y', labelsize=17)
 plt.yticks(np.arange(0, 11, 1))
 plt.show()
-
+#%%
 # In[1.32]: Tornando novamente a variável 'escola' categórica
 
 df_aluno_escola['escola'] = df_aluno_escola['escola'].astype('category')
-
+#%%
 # In[1.33]: Visualização dos fitted values do 'modelo_final_hlm2', por
 #estudante e por escola
 
@@ -620,7 +620,7 @@ df_aluno_escola['fitted.fixed'] = pd.DataFrame(modelo_final_hlm2.predict())
 df_aluno_escola['fitted.completo'] = modelo_final_hlm2.fittedvalues
 df_aluno_escola['eij'] = modelo_final_hlm2.resid
 df_aluno_escola
-
+#%%
 # In[1.34]: Elaboração de previsões para o 'modelo_final_hlm2':
 # Exemplo: Quais os valores previstos de desempenho escolar, para dado
 #aluno que estuda na escola "1", sabendo-se que estuda 11 horas por semana e
@@ -634,7 +634,7 @@ resultado_fixo = modelo_final_hlm2.predict(pd.DataFrame({'horas':[11],
                                                          'texp':[3.6],
                                                          'escola':['1']}))
 resultado_fixo
-
+#%%
 # A função 'predict' não considera os efeitos aleatórios de intercepto ou de
 #inclinação por 'escola'. Neste sentido, precisamos adicioná-los a partir dos
 #parâmetros do 'modelo_final_hlm2', conforme segue.
@@ -646,7 +646,7 @@ resultado_completo = resultado_fixo + efeitos_aleatorios['v0j'][0] +\
     efeitos_aleatorios['v1j'][0]*11
 
 resultado_completo
-
+#%%
 # In[1.36]: Gráfico com valores previstos do desempenho escolar em função da
 #variável 'horas' para o 'modelo_final_hlm2'
 
@@ -672,7 +672,7 @@ legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=c
                    for escola, color in zip(escolas, colors)]
 plt.legend(handles=legend_elements, title='Escola', fontsize=14, title_fontsize=16)
 plt.show()
-
+#%%
 # In[1.37]:
 ##############################################################################
 #                     COMPARAÇÃO COM UM MODELO OLS                           #
@@ -684,7 +684,7 @@ modelo_ols = sm.OLS.from_formula('desempenho ~ horas + texp', df_aluno_escola).f
 
 # Parâmetros do modelo
 modelo_ols.summary()
-
+#%%
 # In[1.38]: Gráfico para comparação visual dos logLiks dos modelos HLM2 Final
 #e OLS
 
@@ -703,7 +703,7 @@ ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 
 plt.show()
-
+#%%
 # In[1.39]: Gráfico para a comparação dos fitted values dos modelos HLM2 Final
 #e OLS
 
@@ -730,7 +730,7 @@ plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.legend(fontsize=20)
 plt.show()
-
+#%%
 # In[1.40]:
 ##############################################################################
 #                COMPARAÇÃO COM UM MODELO OLS COM DUMMIES                    #
@@ -747,7 +747,7 @@ df_aluno_escola_dummies = pd.get_dummies(df_aluno_escola, columns=['escola'],
                                          drop_first=True)
 
 df_aluno_escola_dummies.head(10)
-
+#%%
 # In[1.41]: Estimação do modelo de regressão múltipla com n-1 dummies
 
 # Definição da fórmula utilizada no modelo
@@ -760,7 +760,7 @@ lista_colunas = list(df_aluno_escola_dummies.drop(columns=['estudante','desempen
 formula_dummies_modelo = ' + '.join(lista_colunas)
 formula_dummies_modelo = "desempenho ~ " + formula_dummies_modelo
 print("Fórmula utilizada: ",formula_dummies_modelo)
-
+#%%
 # In[1.42]: Estimação do modelo com n-1 dummies propriamente dito
 
 modelo_ols_dummies = sm.OLS.from_formula(formula_dummies_modelo,
@@ -768,7 +768,7 @@ modelo_ols_dummies = sm.OLS.from_formula(formula_dummies_modelo,
 
 # Parâmetros do 'modelo_ols_dummies'
 modelo_ols_dummies.summary()
-
+#%%
 # In[1.43]: Procedimento Stepwise para o 'modelo_ols_dummies'
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -780,7 +780,7 @@ from statstests.process import stepwise
 # Estimação do modelo por meio do procedimento Stepwise
 
 modelo_ols_dummies_step = stepwise(modelo_ols_dummies, pvalue_limit=0.05)
-
+#%%
 # In[1.44]: Gráfico para comparação visual dos logLiks dos modelos HLM2 Final,
 #OLS e OLS com Dummies e Stepwise
 
@@ -802,7 +802,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[1.45]: Comparação entre os parâmetros dos modelos (atente-se para a
 #quantidade de parâmetros estimados em cada um deles!)
 
@@ -813,7 +813,7 @@ summary_col([modelo_ols_dummies_step, modelo_final_hlm2],
                 'N':lambda x: "{0:d}".format(int(x.nobs)),
                 'Log-lik':lambda x: "{:.2f}".format(x.llf)
                 })
-
+#%%
 # In[1.46]: Gráfico para a comparação entre os fitted values dos modelos
 #HLM2 Final, OLS e OLS com Dummies e Procedimento Stepwise
 
@@ -846,7 +846,7 @@ plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.legend(fontsize=20)
 plt.show
-
+#%%
 # In[1.47]: Gráfico para comparação visual dos logLiks de todos os modelos
 #estimados neste exemplo
 
@@ -871,7 +871,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 
 # In[HLM3 COM MEDIDAS REPETIDAS]:
 ##############################################################################
@@ -891,31 +891,34 @@ df_tempo_aluno_escola = pd.read_csv('desempenho_tempo_aluno_escola.csv',
 
 # Visualização da base de dados 'desempenho_tempo_aluno_escola'
 df_tempo_aluno_escola
-
+#%%
 # Atribuição de categorias para as variáveis 'estudante' e 'escola'
 df_tempo_aluno_escola['estudante'] = df_tempo_aluno_escola['estudante'].astype('category')
 df_tempo_aluno_escola['escola'] = df_tempo_aluno_escola['escola'].astype('category')
 
 # Características das variáveis do dataset
 df_tempo_aluno_escola.info()
-
+#%%
 # Estatísticas univariadas
 df_tempo_aluno_escola.describe()
-
+#%%
 # In[2.1]: Estudo sobre o balanceamento dos dados em relação à quantidade de
 #alunos por período analisado
 
 df_tempo_aluno_escola.groupby('mes')['estudante'].count().reset_index()
 
+#%%
 # In[2.2]: Estudo sobre o desbalanceamento da quantidade de alunos aninhados
 #em escolas
 
 (df_tempo_aluno_escola.groupby('escola')['estudante'].count()/4).reset_index()
 
+#%%
 # In[2.3]: Desempenho escolar médio dos estudantes em cada período (mês)
 
 df_tempo_aluno_escola.groupby('mes')['desempenho'].mean().reset_index()
 
+#%%
 # In[2.4]: Gráfico com a evolução do desempenho escolar médio dos estudantes
 #em cada período (ajuste linear)
 
@@ -930,7 +933,7 @@ plt.tick_params(axis='y', labelsize=17)
 plt.tick_params(axis='x', labelsize=17)
 plt.xticks(np.arange(1, 5, 1))
 plt.show
-
+#%%
 # In[2.5]: Gráfico com a evolução temporal do desempenho escolar dos 50 primeiros
 #estudantes da amostra (50 estudantes em razão da visualização no gráfico)
 
@@ -950,7 +953,7 @@ plt.tick_params(axis='y', labelsize=17)
 plt.tick_params(axis='x', labelsize=17)
 plt.xticks(np.arange(1, 5, 1))
 plt.show()
-
+#%%
 # In[2.6]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho'), com histograma
 
@@ -962,7 +965,7 @@ plt.ylabel('Contagem', fontsize=20)
 plt.tick_params(axis='y', labelsize=17)
 plt.tick_params(axis='x', labelsize=17)
 plt.show()
-
+#%%
 # In[2.7]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho') por escola
 
@@ -991,7 +994,7 @@ plt.gcf().text(0.5, -0.01, 'Desempenho Escolar', ha='center', fontsize=20)
 plt.gcf().text(-0.01, 0.5, 'Frequência', va='center', rotation='vertical',
                fontsize=20)
 plt.show()
-
+#%%
 # In[2.8]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho'), com histograma e por escola separadamente
 #(função 'GridSpec' do pacote 'matplotlib.gridspec')
@@ -1029,7 +1032,7 @@ for i, escola in enumerate(escolas):
 
 plt.tight_layout()
 plt.show()
-
+#%%
 # In[2.9]: Kernel density estimation (KDE) - função densidade de probabilidade
 #da variável dependente ('desempenho'), por escola separadamente
 # Animação no ambiente Plots
@@ -1093,7 +1096,7 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.legend(title='Escola', title_fontsize='14', fontsize='13', loc='best')
 plt.show()
-
+#%%
 # In[2.11]: Gráfico de desempenho x mês por escola separadamente
 # Animação no ambiente Plots
 
@@ -1133,7 +1136,7 @@ while True:
 
         # Intervalo de tempo entre os gráficos
         time.sleep(1)
-
+#%%
 # In[2.12]:
 ##############################################################################
 #                        ESTIMAÇÃO DO MODELO NULO HLM3                       #
@@ -1149,7 +1152,7 @@ modelo_nulo_hlm3 = sm.MixedLM.from_formula(formula='desempenho ~ 1',
 
 # Parâmetros do 'modelo_nulo_hlm3'
 modelo_nulo_hlm3.summary()
-
+#%%
 # In[2.13]: A partir deste momento, iremos estimar os modelos multinível HLM3
 #com medidas repetidas por meio da função 'Lmer' do pacote 'pymer4.models',
 #já que esta função permite que sejam considerados efeitos aleatórios de
@@ -1171,7 +1174,7 @@ modelo_nulo_hlm3 = Lmer(formula='desempenho ~ 1 + (1|escola) + (1|estudante)',
 
 # Parâmetros do 'modelo_nulo_hlm3'
 modelo_nulo_hlm3.fit()
-
+#%%
 # In[2.14]:
 ##############################################################################
 #                   COMPARAÇÃO DO HLM3 NULO COM UM OLS NULO                  #
@@ -1184,7 +1187,7 @@ modelo_ols_nulo = sm.OLS.from_formula(formula='desempenho ~ 1',
 
 # Parâmetros do 'modelo_ols_nulo'
 modelo_ols_nulo.summary()
-
+#%%
 # In[2.15]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -1202,7 +1205,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[2.16]: Teste de razão de verossimilhança entre o 'modelo_nulo_hlm3' e o
 #'modelo_ols_nulo'
 
@@ -1230,12 +1233,12 @@ def lrtest(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-
+#%%
 # In[2.17]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_ols_nulo' e 'modelo_nulo_hlm3'
 
 lrtest([modelo_ols_nulo, modelo_nulo_hlm3])
-
+#%%
 # In[2.18]:
 ##############################################################################
 #              ESTIMAÇÃO DO MODELO HLM3 COM TENDÊNCIA LINEAR E               #
@@ -1249,7 +1252,7 @@ modelo_intercept_inclin_hlm3 = Lmer('desempenho ~ mes + (mes|escola) + (mes|estu
 
 # Parâmetros do 'modelo_intercept_inclin_hlm3'
 modelo_intercept_inclin_hlm3.fit()
-
+#%%
 # In[2.19]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -1269,7 +1272,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[2.20]: Teste de razão de verossimilhança para comparar as estimações do
 #modelo HLM3 nulo e do presente modelo
 
@@ -1297,12 +1300,12 @@ def lrtest2(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-
+#%%
 # In[2.21]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_nulo_hlm3' e 'modelo_intercept_inclin_hlm3'
 
 lrtest2([modelo_nulo_hlm3, modelo_intercept_inclin_hlm3])
-
+#%%
 # In[2.22]:
 ##############################################################################
 #              ESTIMAÇÃO DO MODELO HLM3 COM TENDÊNCIA LINEAR,                #
@@ -1328,7 +1331,7 @@ modelo_completo_final_hlm3 = Lmer('desempenho ~ mes + ativ_sim + texp +\
 
 # Parâmetros do 'modelo_completo_final_hlm3'
 modelo_completo_final_hlm3.fit()
-
+#%%
 # In[2.23]: Gráfico para comparação visual dos logLiks dos modelos estimados
 #até o momento
 
@@ -1350,7 +1353,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[2.24]: Teste de razão de verossimilhança para comparar as estimações do
 #presente modelo e do modelo anterior
 
@@ -1376,12 +1379,12 @@ def lrtest3(modelos):
         print("H1: Different models, favoring the one with the highest Log-Likelihood")
     else:
         print("H0: Models with log-likelihoods that are not statistically different at 95% confidence level")
-
+#%%
 # In[2.25]: Teste de de razão de verossimilhança para comparar as estimações
 #dos 'modelo_intercept_inclin_hlm3' e 'modelo_completo_final_hlm3'
 
 lrtest3([modelo_intercept_inclin_hlm3, modelo_completo_final_hlm3])
-
+#%%
 # In[2.26]: Visualização dos interceptos e inclinações aleatórios por estudante
 
 # Valores de v0jk e v1jk para o 'modelo_completo_final_hlm3' (efeitos aleatórios
@@ -1391,7 +1394,7 @@ aleat_estudante = pd.DataFrame(modelo_completo_final_hlm3.ranef[0]).dropna()
 aleat_estudante = aleat_estudante.rename(columns={'(Intercept)':'v0jk','mes':'v1jk'})
 aleat_estudante = aleat_estudante.reset_index().rename(columns={'index': 'estudante'})
 aleat_estudante
-
+#%%
 # In[2.27]: Visualização dos interceptos e inclinações aleatórios por escola
 
 # Valores de t00k e t10k para o 'modelo_completo_final_hlm3' (efeitos aleatórios
@@ -1401,7 +1404,7 @@ aleat_escola = pd.DataFrame(modelo_completo_final_hlm3.ranef[1]).dropna()
 aleat_escola = aleat_escola.rename(columns={'(Intercept)':'t00k','mes':'t10k'})
 aleat_escola = aleat_escola.reset_index().rename(columns={'index': 'escola'})
 aleat_escola
-
+#%%
 # In[2.28]: Gráfico para visualização do comportamento dos valores de t00k,
 #ou seja, dos interceptos aleatórios por escola
 
@@ -1427,7 +1430,7 @@ plt.tick_params(axis='x', labelsize=17)
 plt.tick_params(axis='y', labelsize=17)
 plt.yticks(np.arange(0, 16, 1))
 plt.show()
-
+#%%
 # In[2.29]: Gráfico para visualização do comportamento dos valores de t10k,
 #ou seja, das inclinações aleatórias por escola
 
@@ -1452,7 +1455,7 @@ plt.tick_params(axis='x', labelsize=17)
 plt.tick_params(axis='y', labelsize=17)
 plt.yticks(np.arange(0, 16, 1))
 plt.show()
-
+#%%
 # In[2.30]: Definição da função 'predict_fixed' para o estabelecimento dos
 #valores presentes no componente de efeitos fixos
 
@@ -1476,14 +1479,14 @@ def predict_fixed(df:pd.DataFrame, model:Lmer):
     final_equation = "fitted_fixed =" + final_equation
     
     return df.eval(final_equation)
-
+#%%
 # In[2.31]: Dataframe com os valores presentes no componente de efeitos fixos
 #(variável 'fitted_fixed')
 
 df_tempo_aluno_escola = predict_fixed(df_tempo_aluno_escola,
                                       modelo_completo_final_hlm3)
 df_tempo_aluno_escola
-
+#%%
 # In[2.32]: Modo direto para a definição dos valores de 'fitted_completo'
 
 df_tempo_aluno_escola['fitted_completo'] = pd.DataFrame(modelo_completo_final_hlm3.fits)
@@ -1499,7 +1502,7 @@ df_effects = df_tempo_aluno_escola[['escola','estudante','mes','desempenho',
                                     'fitted_fixed','fitted_completo','etjk']]
 
 df_effects
-
+#%%
 # In[2.35]: Elaboração de previsões para o 'modelo_completo_final_hlm3':
 
 # Exemplo: Quais os valores previstos de desempenho escolar no primeiro mês
@@ -1515,7 +1518,7 @@ pred_0 = modelo_completo_final_hlm3.predict(pd.DataFrame({'escola':[1],
                                                           'texp':[2]}),
                                             skip_data_checks=True)
 pred_0
-
+#%%
 # Predict para ativ_sim = 1
 #(caso o estudante passasse a realizar atividades complementares de estudo)
 
@@ -1526,7 +1529,7 @@ pred_1 = modelo_completo_final_hlm3.predict(pd.DataFrame({'escola':[1],
                                                           'texp':[2]}),
                                             skip_data_checks=True)
 pred_1
-
+#%%
 # In[2.36]: Gráfico com os valores previstos do desempenho escolar ao longo do
 #tempo para os 47 primeiros estudantes da amostra (47 estudantes que estão na
 #escola '1')
@@ -1551,7 +1554,7 @@ legend = plt.legend(title='Estudante', fontsize=12, title_fontsize=14, ncol=2,
                     loc='center left', bbox_to_anchor=(1.1, 0.5), borderaxespad=0.)
 legend.get_title().set_position((10, 0))
 plt.show()
-
+#%%
 # In[2.37]:
 ##############################################################################
 #          FINALIZANDO... COMPARAÇÃO COM UM MODELO OLS COM DUMMIES           #
@@ -1566,7 +1569,7 @@ base_dummizada = pd.get_dummies(base_para_dummies, columns=['escola'],
                                 dtype=int,
                                 drop_first=True)
 base_dummizada
-
+#%%
 # In[2.38]: Estimação de um modelo OLS com as mesmas variáveis do modelo HLM3
 
 # Criação das variáveis multiplicativas e definição da expressão a ser
@@ -1580,7 +1583,7 @@ lista_colunas = list(base_dummizada.drop(columns=['estudante',
 formula_dummies_modelo = ' + '.join(lista_colunas)
 formula_dummies_modelo = "desempenho ~ " + formula_dummies_modelo
 formula_dummies_modelo
-
+#%%
 # In[2.39]: Estimação do 'modelo_ols_dummies'
 
 modelo_ols_dummies = sm.OLS.from_formula(formula_dummies_modelo,
@@ -1588,7 +1591,7 @@ modelo_ols_dummies = sm.OLS.from_formula(formula_dummies_modelo,
 
 # Parâmetros do 'modelo_ols_dummies'
 modelo_ols_dummies.summary()
-
+#%%
 # In[2.40]: Procedimento Stepwise para o 'modelo_ols_dummies'
 
 # Carregamento da função 'stepwise' do pacote 'statstests.process'
@@ -1600,7 +1603,7 @@ from statstests.process import stepwise
 # Estimação do modelo por meio do procedimento Stepwise
 
 modelo_ols_dummies_step = stepwise(modelo_ols_dummies, pvalue_limit=0.05)
-
+#%%
 # In[2.41]: Gráfico para comparação visual dos logLiks dos modelos HLM3
 #completo e OLS com dummies e procedimento Stepwise
 
@@ -1620,7 +1623,7 @@ ax.set_xlabel("LogLik", fontsize=24)
 ax.tick_params(axis='y', labelsize=20)
 ax.tick_params(axis='x', labelsize=20)
 plt.show()
-
+#%%
 # In[2.42]: Gráfico para a comparação dos fitted values dos modelos HLM3
 #completo e OLS com dummies e procedimento Stepwise
 
@@ -1647,5 +1650,5 @@ plt.xticks(fontsize=17)
 plt.yticks(fontsize=17)
 plt.legend(fontsize=20)
 plt.show
-
+#%%
 # ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ FIM ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ ☺ ♥ #
