@@ -1,0 +1,24 @@
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                  tempo   R-squared:                       0.000
+Model:                            OLS   Adj. R-squared:                  0.000
+Method:                 Least Squares   F-statistic:                       nan
+Date:                Tue, 01 Oct 2024   Prob (F-statistic):                nan
+Time:                        21:39:33   Log-Likelihood:                -40.681
+No. Observations:                  10   AIC:                             83.36
+Df Residuals:                       9   BIC:                             83.66
+Df Model:                           0                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     30.0000      4.714      6.364      0.000      19.336      40.664
+==============================================================================
+Omnibus:                        0.827   Durbin-Watson:                   1.913
+Prob(Omnibus):                  0.661   Jarque-Bera (JB):                0.696
+Skew:                           0.398   Prob(JB):                        0.706
+Kurtosis:                       1.981   Cond. No.                         1.00
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.

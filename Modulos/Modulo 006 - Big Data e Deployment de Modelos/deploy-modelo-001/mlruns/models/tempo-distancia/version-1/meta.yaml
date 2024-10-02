@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1727832104472
+current_stage: Archived
+description: ''
+last_updated_timestamp: 1727833266583
+name: tempo-distancia
+run_id: 65a07afdc5d14949a7d065130dadbf37
+run_link: ''
+source: mlflow-artifacts:/317430890869124133/65a07afdc5d14949a7d065130dadbf37/artifacts/modelo-nulo
+status: READY
+status_message: null
+storage_location: mlflow-artifacts:/317430890869124133/65a07afdc5d14949a7d065130dadbf37/artifacts/modelo-nulo
+user_id: null
+version: 1

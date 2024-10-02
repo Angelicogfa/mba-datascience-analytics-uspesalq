@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/317430890869124133/a51b726851494b5ca95595a26aa44a4e/artifacts
+end_time: 1727833058033
+entry_point_name: ''
+experiment_id: '317430890869124133'
+lifecycle_stage: active
+run_id: a51b726851494b5ca95595a26aa44a4e
+run_name: Modelo Final
+run_uuid: a51b726851494b5ca95595a26aa44a4e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1727833051669
+status: 3
+tags: []
+user_id: guilherme.fernando
